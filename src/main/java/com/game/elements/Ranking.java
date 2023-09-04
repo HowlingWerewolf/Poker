@@ -13,7 +13,6 @@ public enum Ranking {
     FULL_HOUSE(6),
     POKER(7),
     STRAIGHT_FLUSH(8),
-    ROYAL_FLUSH(9),
     ;
 
     public final Integer strength;

@@ -8,6 +8,6 @@ import java.util.List;
 
 @Getter
 public class Player {
-    final List<Card> hand = new ArrayList<>();
+    final List<Card> cards = new ArrayList<>();
     // chips?
 }

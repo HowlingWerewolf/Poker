@@ -80,7 +80,7 @@ class HandEvaluatorTest {
     }
 
     @Test
-    void testRoyalFlush() {
+    void testStraightFlush() {
         // given
         final List<Card> hand = List.of(
                 new Card(Color.CLUB, Value.KING),
@@ -99,7 +99,7 @@ class HandEvaluatorTest {
         // then
         Assertions.assertNotNull(evaluated);
         Assertions.assertNotNull(evaluated.getCards());
-        Assertions.assertEquals(Ranking.ROYAL_FLUSH, evaluated.getRanking());
+        Assertions.assertEquals(Ranking.STRAIGHT_FLUSH, evaluated.getRanking());
     }
 
     @Test
