@@ -1,5 +1,8 @@
-package com.game.elements;
+package com.game.calculators;
 
+import com.game.calculators.HandEvaluator;
+import com.game.elements.Hand;
+import com.game.elements.Ranking;
 import com.game.playground.asset.Card;
 import com.game.playground.asset.Color;
 import com.game.playground.asset.Value;

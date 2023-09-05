@@ -1,5 +1,7 @@
 package com.game.elements;
 
+import com.game.calculators.HandComparatorUtil;
+import com.game.calculators.HandEvaluator;
 import com.game.playground.asset.Card;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

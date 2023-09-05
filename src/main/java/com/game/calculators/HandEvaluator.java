@@ -1,11 +1,15 @@
-package com.game.elements;
+package com.game.calculators;
 
+import cc.redberry.combinatorics.Combinatorics;
+import com.game.elements.Hand;
+import com.game.elements.Ranking;
 import com.game.playground.asset.Card;
 import com.game.playground.asset.Color;
 import com.game.playground.asset.Value;
 import lombok.Getter;
 import org.apache.commons.collections4.ListUtils;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +17,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+
+import static com.game.calculators.Constants.MAX_HAND_SIZE;
 
 @Getter
 public class HandEvaluator {
@@ -87,7 +93,7 @@ public class HandEvaluator {
             return pairHand;
         }
 
-        return new Hand(cardsToEvaluate, List.of(), Ranking.HIGH_CARD);
+        return new Hand(cardsToEvaluate, HandComparatorUtil.sortCardsDescending(cardsToEvaluate).subList(0, 5), Ranking.HIGH_CARD);
     }
 
     private Hand getFlushHand() {
@@ -108,13 +114,17 @@ public class HandEvaluator {
     }
 
     private Hand getStraightHand() {
-        final List<Card> sortedCards = HandComparatorUtil.sortCards(cardsToEvaluate);
+        final List<Card> sortedCards = HandComparatorUtil.sortCardsDescending(cardsToEvaluate);
         final Optional<Card> ace = cardsToEvaluate.stream()
                 .filter(card -> card.getValue().equals(Value.ACE))
                 .findFirst();
+        final List<Object[]> collect = Combinatorics.combinations(sortedCards.toArray(), 5)
+                .stream()
+                .collect(Collectors.toList());
 
-        for (int i = 0; i < sortedCards.size() - 4; i++) {
-            final Hand hand = getStraightHand(sortedCards.subList(i, i + 5), ace.orElse(null));
+        for (Object[] fiveCardHandAsObj : collect) {
+            final List<Card> fiveCardHand = Arrays.stream(fiveCardHandAsObj).map(o -> (Card) o).collect(Collectors.toList());
+            final Hand hand = getStraightHand(fiveCardHand, ace.orElse(null));
             if (hand != null) {
                 return hand;
             }
@@ -179,9 +189,10 @@ public class HandEvaluator {
             final List<Card> matchedCards = cardsToEvaluate.stream()
                     .filter(card -> card.getValue().equals(matchedEntry.get().getKey()))
                     .collect(Collectors.toList());
-            final List<Card> kickers = HandComparatorUtil.sortCards(ListUtils.subtract(cardsToEvaluate, matchedCards));
+            final List<Card> kickers = HandComparatorUtil.sortCardsDescending(ListUtils.subtract(cardsToEvaluate, matchedCards))
+                    .subList(MAX_HAND_SIZE - matching - 1, cardsToEvaluate.size() - matchedCards.size());
 
-            return new Hand(cardsToEvaluate, ListUtils.union(matchedCards, kickers), ranking);
+            return new Hand(cardsToEvaluate, ListUtils.union(matchedCards, HandComparatorUtil.sortCardsDescending(kickers)), ranking);
         }
         return null;
     }

@@ -2,7 +2,7 @@ package com.game;
 
 import com.game.actor.Player;
 import com.game.elements.Hand;
-import com.game.elements.HandEvaluator;
+import com.game.calculators.HandEvaluator;
 import com.game.playground.Board;
 import com.game.playground.Deck;
 import com.game.playground.asset.Card;

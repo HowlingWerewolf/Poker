@@ -1,5 +1,6 @@
-package com.game.elements;
+package com.game.calculators;
 
+import com.game.elements.Hand;
 import com.game.playground.asset.Card;
 import com.game.playground.asset.Value;
 
@@ -10,25 +11,25 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.game.calculators.Constants.DRILL_SIZE;
+import static com.game.calculators.Constants.MAX_HAND_SIZE;
+import static com.game.calculators.Constants.PAIR_SIZE;
+import static com.game.calculators.Constants.POKER_SIZE;
+
 // TODO create ordinary comparator
 public class HandComparatorUtil {
-
-    public static final int PAIR_SIZE = 2;
-    public static final int DRILL_SIZE = 3;
-    public static final int POKER_SIZE = 4;
-    public static final int MAX_HAND_SIZE = 5;
 
     private HandComparatorUtil() {}
 
     public static int compareHighCardHands(final Hand hand, final Hand otherHand) {
-        final List<Card> sortedCards = sortCards(hand);
-        final List<Card> sortedOtherCards = sortCards(otherHand);
+        final List<Card> sortedCards = sortCardsDescending(hand);
+        final List<Card> sortedOtherCards = sortCardsDescending(otherHand);
         return compareOneByOne(sortedCards, sortedOtherCards);
     }
 
     private static Integer compareOneByOne(final List<Card> cards, final List<Card> otherCards) {
-        final List<Card> sortedCards = sortCards(cards);
-        final List<Card> sortedOtherCards = sortCards(otherCards);
+        final List<Card> sortedCards = sortCardsDescending(cards);
+        final List<Card> sortedOtherCards = sortCardsDescending(otherCards);
 
         for (int i = 0; i < sortedCards.size(); i++) {
             final Card card = sortedCards.get(i);
@@ -41,19 +42,19 @@ public class HandComparatorUtil {
         return 0;
     }
 
-    private static List<Card> sortCards(final Hand hand) {
-        return sortCards(hand.getCards());
+    private static List<Card> sortCardsDescending(final Hand hand) {
+        return sortCardsDescending(hand.getCards());
     }
 
 
-    protected static List<Card> sortCards(final List<Card> cards) {
+    protected static List<Card> sortCardsDescending(final List<Card> cards) {
         return cards.stream()
                 .sorted(Comparator.comparing(card -> card.getValue().getIndex()))
                 .sorted(Comparator.reverseOrder())
                 .collect(Collectors.toList());
     }
 
-    protected static int comparePairHands(final Hand hand, final Hand otherHand) {
+    public static int comparePairHands(final Hand hand, final Hand otherHand) {
         final HandEvaluator handEvaluator = new HandEvaluator(hand.getStrongestCombination());
         final Optional<Map.Entry<Value, Integer>> pairs = handEvaluator.getValueMatrix().entrySet()
                 .stream()
@@ -84,7 +85,7 @@ public class HandComparatorUtil {
         }
     }
 
-    protected static int compareTwoPairHands(final Hand hand, final Hand otherHand) {
+    public static int compareTwoPairHands(final Hand hand, final Hand otherHand) {
         final HandEvaluator handEvaluator = new HandEvaluator(hand.getStrongestCombination());
         final List<Map.Entry<Value, Integer>> twoPairs = handEvaluator.getValueMatrix().entrySet()
                 .stream()
@@ -118,7 +119,7 @@ public class HandComparatorUtil {
                 .sorted((c1, c2) -> c2.getValue().getIndex().compareTo(c1.getValue().getIndex()))
                 .collect(Collectors.toList());
 
-        for (int i = 0; i < MAX_HAND_SIZE - DRILL_SIZE; i++) {
+        for (int i = 0; i < MAX_HAND_SIZE - (PAIR_SIZE * 2); i++) {
             final Card kicker = kickers.get(i);
             final Card otherKicker = otherKickers.get(i);
             if (!kicker.isSameValue(otherKicker)) {
@@ -129,7 +130,7 @@ public class HandComparatorUtil {
         return 0;
     }
 
-    protected static int compareDrillHands(final Hand hand, final Hand otherHand) {
+    public static int compareDrillHands(final Hand hand, final Hand otherHand) {
         final HandEvaluator handEvaluator = new HandEvaluator(hand.getStrongestCombination());
         final List<Map.Entry<Value, Integer>> drill = handEvaluator.getValueMatrix().entrySet()
                 .stream()
@@ -174,21 +175,21 @@ public class HandComparatorUtil {
         return 0;
     }
 
-    protected static int compareStraightHands(final Hand hand, final Hand otherHand) {
+    public static int compareStraightHands(final Hand hand, final Hand otherHand) {
         final Card firstCardOfStraight = hand.getStrongestCombination().get(0);
         final Card firstCardOfOtherStraight = otherHand.getStrongestCombination().get(0);
         return firstCardOfStraight.compareTo(firstCardOfOtherStraight);
     }
 
-    protected static int compareFlushHands(final Hand hand, final Hand otherHand) {
+    public static int compareFlushHands(final Hand hand, final Hand otherHand) {
         return compareOneByOne(hand.getStrongestCombination(), otherHand.getStrongestCombination());
     }
 
-    protected static int compareFullHouseHands(final Hand hand, final Hand otherHand) {
+    public static int compareFullHouseHands(final Hand hand, final Hand otherHand) {
         return compareDrillHands(hand, otherHand);
     }
 
-    protected static int comparePokerHands(final Hand hand, final Hand otherHand) {
+    public static int comparePokerHands(final Hand hand, final Hand otherHand) {
         final HandEvaluator handEvaluator = new HandEvaluator(hand.getStrongestCombination());
         final List<Map.Entry<Value, Integer>> poker = handEvaluator.getValueMatrix().entrySet()
                 .stream()
@@ -233,7 +234,7 @@ public class HandComparatorUtil {
         return 0;
     }
 
-    protected static int compareStraightFlushHands(final Hand hand, final Hand otherHand) {
+    public static int compareStraightFlushHands(final Hand hand, final Hand otherHand) {
         // only checks the highest card of the straight
         return compareStraightHands(hand, otherHand);
     }
