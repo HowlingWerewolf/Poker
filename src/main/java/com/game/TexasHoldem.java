@@ -1,6 +1,7 @@
 package com.game;
 
 import com.game.actor.Player;
+import com.game.calculators.OutCalculatorUtil;
 import com.game.elements.Hand;
 import com.game.calculators.HandEvaluator;
 import com.game.playground.Board;
@@ -35,6 +36,13 @@ public class TexasHoldem {
         log.info(me.getCards().toString());
         log.info(miniMe.getCards().toString());
 
+        // some info for Gyuri Korda
+        log.info(OutCalculatorUtil.getAllOuts(new Hand(me.getCards(), null, null),
+                deck.getFlippedDownDeck()).toString());
+
+        log.info(OutCalculatorUtil.getAllOuts(new Hand(miniMe.getCards(), null, null),
+                deck.getFlippedDownDeck()).toString());
+
         // burn
         deck.drawFromDeck();
 
@@ -45,6 +53,13 @@ public class TexasHoldem {
         board.getFlippedCards().add(deck.drawFromDeck());
         log.info(board.getFlippedCards().toString());
 
+        // some info for Gyuri Korda
+        log.info(OutCalculatorUtil.getAllOuts(new Hand(me.getCards(), null, null),
+                deck.getFlippedDownDeck()).toString());
+
+        log.info(OutCalculatorUtil.getAllOuts(new Hand(miniMe.getCards(), null, null),
+                deck.getFlippedDownDeck()).toString());
+
         // burn
         deck.drawFromDeck();
 
@@ -53,6 +68,13 @@ public class TexasHoldem {
         final Card turnCard = deck.drawFromDeck();
         board.getFlippedCards().add(turnCard);
         log.info(turnCard.toString());
+
+        // some info for Gyuri Korda
+        log.info(OutCalculatorUtil.getAllOuts(new Hand(me.getCards(), null, null),
+                deck.getFlippedDownDeck()).toString());
+
+        log.info(OutCalculatorUtil.getAllOuts(new Hand(miniMe.getCards(), null, null),
+                deck.getFlippedDownDeck()).toString());
 
         // burn
         deck.drawFromDeck();

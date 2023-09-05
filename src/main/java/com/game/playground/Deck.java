@@ -4,7 +4,6 @@ import com.game.playground.asset.Card;
 import com.game.playground.asset.Color;
 import com.game.playground.asset.Value;
 import lombok.extern.java.Log;
-import lombok.extern.log4j.Log4j;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,4 +29,9 @@ public class Deck {
     public Card drawFromDeck() {
         return deck.remove(0);
     }
+
+    public List<Card> getFlippedDownDeck() {
+        return deck;
+    }
+
 }
