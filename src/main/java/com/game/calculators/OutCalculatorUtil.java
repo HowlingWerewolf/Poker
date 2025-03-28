@@ -9,6 +9,9 @@ import java.util.stream.Collectors;
 
 import static com.game.calculators.Constants.MAX_DEALT_CARDS;
 
+/**
+ * Calculates outs between two hands.
+ */
 public class OutCalculatorUtil {
 
     private OutCalculatorUtil() {}
@@ -18,11 +21,11 @@ public class OutCalculatorUtil {
         return Generator.combination(remainingCards)
                 .simple(remainingEmptyPositions)
                 .stream()
-                .collect(Collectors.toList());
+                .toList();
 //        final List<Object[]> outsAsArray = Combinatorics.combinations(remainingCards.toArray(),
 //                        remainingEmptyPositions)
 //                .stream()
-//                .collect(Collectors.toList());
+//                .toList();
 //
 //        final List<List<Card>> result = new ArrayList<>();
 //        // TODO check repetition, the order does not matter!

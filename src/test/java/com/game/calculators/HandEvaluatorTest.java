@@ -1,6 +1,5 @@
 package com.game.calculators;
 
-import com.game.calculators.HandEvaluator;
 import com.game.elements.Hand;
 import com.game.elements.Ranking;
 import com.game.playground.asset.Card;
@@ -152,6 +151,29 @@ class HandEvaluatorTest {
     }
 
     @Test
+    void testFullHouseTricky() {
+        // given
+        final List<Card> hand = List.of(
+                new Card(Color.CLUB, Value.KING),
+                new Card(Color.HEART, Value.KING),
+                new Card(Color.DIAMOND, Value.KING),
+                new Card(Color.CLUB, Value.ACE),
+                new Card(Color.SPADE, Value.ACE),
+                new Card(Color.DIAMOND, Value.QUEEN),
+                new Card(Color.CLUB, Value.QUEEN)
+        );
+        final HandEvaluator evaluator = new HandEvaluator(hand);
+
+        // when
+        final Hand evaluated = evaluator.evaluate();
+
+        // then
+        Assertions.assertNotNull(evaluated);
+        Assertions.assertNotNull(evaluated.getCards());
+        Assertions.assertEquals(Ranking.FULL_HOUSE, evaluated.getRanking());
+    }
+
+    @Test
     void testDrill() {
         // given
         final List<Card> hand = List.of(
@@ -161,6 +183,29 @@ class HandEvaluatorTest {
                 new Card(Color.SPADE, Value.KING),
                 new Card(Color.DIAMOND, Value.TWO),
                 new Card(Color.CLUB, Value.JACK),
+                new Card(Color.CLUB, Value.QUEEN)
+        );
+        final HandEvaluator evaluator = new HandEvaluator(hand);
+
+        // when
+        final Hand evaluated = evaluator.evaluate();
+
+        // then
+        Assertions.assertNotNull(evaluated);
+        Assertions.assertNotNull(evaluated.getCards());
+        Assertions.assertEquals(Ranking.DRILL, evaluated.getRanking());
+    }
+
+    @Test
+    void testDrillTricky() {
+        // given
+        final List<Card> hand = List.of(
+                new Card(Color.CLUB, Value.KING),
+                new Card(Color.HEART, Value.KING),
+                new Card(Color.SPADE, Value.KING),
+                new Card(Color.CLUB, Value.ACE),
+                new Card(Color.DIAMOND, Value.ACE),
+                new Card(Color.HEART, Value.ACE),
                 new Card(Color.CLUB, Value.QUEEN)
         );
         final HandEvaluator evaluator = new HandEvaluator(hand);
