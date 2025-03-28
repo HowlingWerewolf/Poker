@@ -172,12 +172,10 @@ public class HandEvaluator {
     }
 
     protected Hand getDrillHand() {
-        // FIXME there could be more matches, we always need the strongest
         return getValueMatches(3, Ranking.DRILL);
     }
 
     private Hand getPairHand() {
-        // FIXME there could be more matches, we always need the strongest
         return getValueMatches(2, Ranking.ONE_PAIR);
     }
 
@@ -185,7 +183,7 @@ public class HandEvaluator {
         final Optional<Map.Entry<Value, Integer>> matchedEntry = valueMatrix.entrySet()
                 .stream()
                 .filter(value -> value.getValue() == matching)
-                .findFirst();
+                .max(Map.Entry.comparingByKey());
 
         if (matchedEntry.isPresent()) {
             final List<Card> matchedCards = cardsToEvaluate.stream()
@@ -200,22 +198,22 @@ public class HandEvaluator {
     }
 
     private Hand getFullHouseHand() {
-        final List<Map.Entry<Value, Integer>> drill = valueMatrix.entrySet()
+        final Optional<Map.Entry<Value, Integer>> drill = valueMatrix.entrySet()
                 .stream()
                 .filter(e -> e.getValue() == 3)
-                .toList();
+                .max(Map.Entry.comparingByKey());
 
-        final List<Map.Entry<Value, Integer>> pair = valueMatrix.entrySet()
+        final Optional<Map.Entry<Value, Integer>> pair = valueMatrix.entrySet()
                 .stream()
                 .filter(e -> e.getValue() == 2)
-                .toList();
+                .max(Map.Entry.comparingByKey());
 
-        if (pair.size() == 1 && drill.size() == 1) {
+        if (pair.isPresent() && drill.isPresent()) {
             final List<Card> drillCards = cardsToEvaluate.stream()
-                    .filter(card -> card.getValue().equals(drill.getFirst().getKey()))
+                    .filter(card -> card.getValue().equals(drill.get().getKey()))
                     .toList();
             final List<Card> pairCards = cardsToEvaluate.stream()
-                    .filter(card -> card.getValue().equals(pair.getFirst().getKey()))
+                    .filter(card -> card.getValue().equals(pair.get().getKey()))
                     .toList();
             return new Hand(cardsToEvaluate,
                     List.of(drillCards.get(0), drillCards.get(1), drillCards.get(2), pairCards.get(0), pairCards.get(1)),

@@ -32,6 +32,7 @@ class HandEvaluatorTest {
         // then
         Assertions.assertNotNull(evaluated);
         Assertions.assertNotNull(evaluated.getCards());
+        Assertions.assertEquals(5, evaluated.getStrongestCombination().size());
         Assertions.assertEquals(Ranking.FLUSH, evaluated.getRanking());
     }
 
@@ -55,6 +56,7 @@ class HandEvaluatorTest {
         // then
         Assertions.assertNotNull(evaluated);
         Assertions.assertNotNull(evaluated.getCards());
+        Assertions.assertEquals(5, evaluated.getStrongestCombination().size());
         Assertions.assertEquals(Ranking.STRAIGHT, evaluated.getRanking());
     }
 
@@ -78,6 +80,7 @@ class HandEvaluatorTest {
         // then
         Assertions.assertNotNull(evaluated);
         Assertions.assertNotNull(evaluated.getCards());
+        Assertions.assertEquals(5, evaluated.getStrongestCombination().size());
         Assertions.assertEquals(Ranking.STRAIGHT, evaluated.getRanking());
     }
 
@@ -101,6 +104,7 @@ class HandEvaluatorTest {
         // then
         Assertions.assertNotNull(evaluated);
         Assertions.assertNotNull(evaluated.getCards());
+        Assertions.assertEquals(5, evaluated.getStrongestCombination().size());
         Assertions.assertEquals(Ranking.STRAIGHT_FLUSH, evaluated.getRanking());
     }
 
@@ -124,6 +128,7 @@ class HandEvaluatorTest {
         // then
         Assertions.assertNotNull(evaluated);
         Assertions.assertNotNull(evaluated.getCards());
+        Assertions.assertEquals(5, evaluated.getStrongestCombination().size());
         Assertions.assertEquals(Ranking.POKER, evaluated.getRanking());
     }
 
@@ -147,6 +152,7 @@ class HandEvaluatorTest {
         // then
         Assertions.assertNotNull(evaluated);
         Assertions.assertNotNull(evaluated.getCards());
+        Assertions.assertEquals(5, evaluated.getStrongestCombination().size());
         Assertions.assertEquals(Ranking.FULL_HOUSE, evaluated.getRanking());
     }
 
@@ -170,6 +176,7 @@ class HandEvaluatorTest {
         // then
         Assertions.assertNotNull(evaluated);
         Assertions.assertNotNull(evaluated.getCards());
+        Assertions.assertEquals(5, evaluated.getStrongestCombination().size());
         Assertions.assertEquals(Ranking.FULL_HOUSE, evaluated.getRanking());
     }
 
@@ -193,6 +200,7 @@ class HandEvaluatorTest {
         // then
         Assertions.assertNotNull(evaluated);
         Assertions.assertNotNull(evaluated.getCards());
+        Assertions.assertEquals(5, evaluated.getStrongestCombination().size());
         Assertions.assertEquals(Ranking.DRILL, evaluated.getRanking());
     }
 
@@ -216,6 +224,7 @@ class HandEvaluatorTest {
         // then
         Assertions.assertNotNull(evaluated);
         Assertions.assertNotNull(evaluated.getCards());
+        Assertions.assertEquals(5, evaluated.getStrongestCombination().size());
         Assertions.assertEquals(Ranking.DRILL, evaluated.getRanking());
     }
 
@@ -239,6 +248,7 @@ class HandEvaluatorTest {
         // then
         Assertions.assertNotNull(evaluated);
         Assertions.assertNotNull(evaluated.getCards());
+        Assertions.assertEquals(5, evaluated.getStrongestCombination().size());
         Assertions.assertEquals(Ranking.TWO_PAIRS, evaluated.getRanking());
     }
 
@@ -262,6 +272,7 @@ class HandEvaluatorTest {
         // then
         Assertions.assertNotNull(evaluated);
         Assertions.assertNotNull(evaluated.getCards());
+        Assertions.assertEquals(5, evaluated.getStrongestCombination().size());
         Assertions.assertEquals(Ranking.ONE_PAIR, evaluated.getRanking());
     }
 
