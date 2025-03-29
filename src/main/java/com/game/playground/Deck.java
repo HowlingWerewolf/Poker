@@ -26,8 +26,8 @@ public class Deck {
 
     private void createDeck(boolean announcerEnabled) {
         // create the cards
-        for (Color color : Color.values()) {
-            for (Value value : Value.values()) {
+        for (final Color color : Color.values()) {
+            for (final Value value : Value.values()) {
                 cards.add(new Card(color, value));
             }
         }
