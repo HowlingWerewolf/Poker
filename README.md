@@ -11,3 +11,10 @@ on multiple threads (check the implementation, something is not right with the t
 
 TexasHoldemParallelLambdaPerformance - same two player texas holdem game performance test, but with Stream API 
 and parallelization
+
+
+--------------------------------------------
+# Further plans
+
+- Calculating outs during a game
+- Adding frontend
