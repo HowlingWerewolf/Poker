@@ -21,26 +21,33 @@ public class TexasGameSimulation {
 
     final boolean openCardsModeEnabled;
     final boolean outCalculationModeEnabled;
+    final boolean announcerEnabled;
 
     TexasGameSimulation() {
         board = new Board();
         deck = new Deck();
-        openCardsModeEnabled = false;
-        outCalculationModeEnabled = false;
+        openCardsModeEnabled = true;
+        outCalculationModeEnabled = true;
+        announcerEnabled = true;
     }
 
     TexasGameSimulation(final boolean openCardsModeEnabled,
-                        final boolean outCalculationModeEnabled) {
+                        final boolean outCalculationModeEnabled,
+                        final boolean announcerEnabled) {
         board = new Board();
-        deck = new Deck();
+        deck = new Deck(announcerEnabled);
         this.openCardsModeEnabled = openCardsModeEnabled;
         this.outCalculationModeEnabled = outCalculationModeEnabled;
+        this.announcerEnabled = announcerEnabled;
     }
 
     public void play() {
 
         // deal
-        log.info("Dealing...");
+        if (announcerEnabled) {
+            log.info("Dealing...");
+        }
+
         final Player me = new Player();
         dealToPlayer(me);
 
@@ -62,11 +69,17 @@ public class TexasGameSimulation {
         burn();
 
         // flop
-        log.info("Flop!");
+        if (announcerEnabled) {
+            log.info("Flop!");
+        }
+
         board.getFlippedCards().add(deck.drawFromDeck());
         board.getFlippedCards().add(deck.drawFromDeck());
         board.getFlippedCards().add(deck.drawFromDeck());
-        log.info(board.getFlippedCards().toString());
+
+        if (announcerEnabled) {
+            log.info(board.getFlippedCards().toString());
+        }
 
         if (outCalculationModeEnabled) {
             // some info for Gyuri Korda
@@ -77,10 +90,16 @@ public class TexasGameSimulation {
         burn();
 
         // turn
-        log.info("Turn!");
+        if (announcerEnabled) {
+            log.info("Turn!");
+        }
+
         final Card turnCard = deck.drawFromDeck();
         board.getFlippedCards().add(turnCard);
-        log.info(turnCard.toString());
+
+        if (announcerEnabled) {
+            log.info(turnCard.toString());
+        }
 
         if (outCalculationModeEnabled) {
             // some info for Gyuri Korda
@@ -91,36 +110,55 @@ public class TexasGameSimulation {
         burn();
 
         // river
-        log.info("River!");
+        if (announcerEnabled) {
+            log.info("River!");
+        }
+
         final Card riverCard = deck.drawFromDeck();
         board.getFlippedCards().add(riverCard);
-        log.info(riverCard.toString());
+
+        if (announcerEnabled) {
+            log.info(riverCard.toString());
+        }
 
 
-        log.info("Me:");
+        if (announcerEnabled) {
+            log.info("Me:");
+        }
         final List<Card> myCards = new ArrayList<>(board.getFlippedCards());
         myCards.addAll(me.getCards());
         final HandEvaluator myHandEvaluator = new HandEvaluator(myCards);
         final Hand myHand = myHandEvaluator.evaluate();
-        log.info("My hand is: " + myHand.getCards().toString());
-        log.info(myHand.getRanking().toString());
-        log.info("My strongest combination is: " + myHand.getStrongestCombination().toString());
 
-        log.info("MiniMe:");
+        if (announcerEnabled) {
+            log.info("My hand is: " + myHand.getCards().toString());
+            log.info(myHand.getRanking().toString());
+            log.info("My strongest combination is: " + myHand.getStrongestCombination().toString());
+        }
+
+        if (announcerEnabled) {
+            log.info("MiniMe:");
+        }
+
         final List<Card> otherCards = new ArrayList<>(board.getFlippedCards());
         otherCards.addAll(miniMe.getCards());
         final HandEvaluator otherHandEvaluator = new HandEvaluator(otherCards);
         final Hand otherHand = otherHandEvaluator.evaluate();
-        log.info("MiniMe's hand is: " + otherHand.getCards().toString());
-        log.info(otherHand.getRanking().toString());
-        log.info("MiniMe's strongest combination is: " + otherHand.getStrongestCombination().toString());
 
-        if (myHand.compareTo(otherHand) > 0) {
-            log.info("I won");
-        } else if (myHand.compareTo(otherHand) == 0) {
-            log.info("It's a draw");
-        } else {
-            log.info("Minime won");
+        if (announcerEnabled) {
+            log.info("MiniMe's hand is: " + otherHand.getCards().toString());
+            log.info(otherHand.getRanking().toString());
+            log.info("MiniMe's strongest combination is: " + otherHand.getStrongestCombination().toString());
+        }
+
+        if (announcerEnabled) {
+            if (myHand.compareTo(otherHand) > 0) {
+                log.info("I won");
+            } else if (myHand.compareTo(otherHand) == 0) {
+                log.info("It's a draw");
+            } else {
+                log.info("Minime won");
+            }
         }
     }
 

@@ -55,7 +55,7 @@ public class HandEvaluator {
 
         // royal flush
         if (flushHand != null && flushHand.equals(straightHand)) {
-            return new Hand(cardsToEvaluate, flushHand.getCards(), Ranking.STRAIGHT_FLUSH);
+            return new Hand(cardsToEvaluate, flushHand.getStrongestCombination(), Ranking.STRAIGHT_FLUSH);
         }
 
         if (flushHand != null) {
@@ -121,7 +121,7 @@ public class HandEvaluator {
                 .stream()
                 .toList();
 
-        for (Object[] fiveCardHandAsObj : collect) {
+        for (final Object[] fiveCardHandAsObj : collect) {
             final List<Card> fiveCardHand = Arrays.stream(fiveCardHandAsObj).map(o -> (Card) o).toList();
             final Hand hand = getStraightHand(fiveCardHand, ace.orElse(null));
             if (hand != null) {
