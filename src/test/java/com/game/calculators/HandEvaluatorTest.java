@@ -10,6 +10,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+/**
+ * All tests are written to get the strongest 5 card combination out of 7 cards.
+ */
 class HandEvaluatorTest {
 
     @Test
@@ -30,10 +33,7 @@ class HandEvaluatorTest {
         final Hand evaluated = evaluator.evaluate();
 
         // then
-        Assertions.assertNotNull(evaluated);
-        Assertions.assertNotNull(evaluated.getCards());
-        Assertions.assertEquals(5, evaluated.getStrongestCombination().size());
-        Assertions.assertEquals(Ranking.FLUSH, evaluated.getRanking());
+        assertHand(evaluated, Ranking.FLUSH);
     }
 
     @Test
@@ -54,10 +54,7 @@ class HandEvaluatorTest {
         final Hand evaluated = evaluator.evaluate();
 
         // then
-        Assertions.assertNotNull(evaluated);
-        Assertions.assertNotNull(evaluated.getCards());
-        Assertions.assertEquals(5, evaluated.getStrongestCombination().size());
-        Assertions.assertEquals(Ranking.STRAIGHT, evaluated.getRanking());
+        assertHand(evaluated, Ranking.STRAIGHT);
     }
 
     @Test
@@ -78,10 +75,7 @@ class HandEvaluatorTest {
         final Hand evaluated = evaluator.evaluate();
 
         // then
-        Assertions.assertNotNull(evaluated);
-        Assertions.assertNotNull(evaluated.getCards());
-        Assertions.assertEquals(5, evaluated.getStrongestCombination().size());
-        Assertions.assertEquals(Ranking.STRAIGHT, evaluated.getRanking());
+        assertHand(evaluated, Ranking.STRAIGHT);
     }
 
     @Test
@@ -102,10 +96,7 @@ class HandEvaluatorTest {
         final Hand evaluated = evaluator.evaluate();
 
         // then
-        Assertions.assertNotNull(evaluated);
-        Assertions.assertNotNull(evaluated.getCards());
-        Assertions.assertEquals(5, evaluated.getStrongestCombination().size());
-        Assertions.assertEquals(Ranking.STRAIGHT_FLUSH, evaluated.getRanking());
+        assertHand(evaluated, Ranking.STRAIGHT_FLUSH);
     }
 
     @Test
@@ -126,10 +117,7 @@ class HandEvaluatorTest {
         final Hand evaluated = evaluator.evaluate();
 
         // then
-        Assertions.assertNotNull(evaluated);
-        Assertions.assertNotNull(evaluated.getCards());
-        Assertions.assertEquals(5, evaluated.getStrongestCombination().size());
-        Assertions.assertEquals(Ranking.POKER, evaluated.getRanking());
+        assertHand(evaluated, Ranking.POKER);
     }
 
     @Test
@@ -150,10 +138,7 @@ class HandEvaluatorTest {
         final Hand evaluated = evaluator.evaluate();
 
         // then
-        Assertions.assertNotNull(evaluated);
-        Assertions.assertNotNull(evaluated.getCards());
-        Assertions.assertEquals(5, evaluated.getStrongestCombination().size());
-        Assertions.assertEquals(Ranking.FULL_HOUSE, evaluated.getRanking());
+        assertHand(evaluated, Ranking.FULL_HOUSE);
     }
 
     @Test
@@ -174,10 +159,7 @@ class HandEvaluatorTest {
         final Hand evaluated = evaluator.evaluate();
 
         // then
-        Assertions.assertNotNull(evaluated);
-        Assertions.assertNotNull(evaluated.getCards());
-        Assertions.assertEquals(5, evaluated.getStrongestCombination().size());
-        Assertions.assertEquals(Ranking.FULL_HOUSE, evaluated.getRanking());
+        assertHand(evaluated, Ranking.FULL_HOUSE);
     }
 
     @Test
@@ -198,10 +180,7 @@ class HandEvaluatorTest {
         final Hand evaluated = evaluator.evaluate();
 
         // then
-        Assertions.assertNotNull(evaluated);
-        Assertions.assertNotNull(evaluated.getCards());
-        Assertions.assertEquals(5, evaluated.getStrongestCombination().size());
-        Assertions.assertEquals(Ranking.DRILL, evaluated.getRanking());
+        assertHand(evaluated, Ranking.DRILL);
     }
 
     @Test
@@ -222,10 +201,7 @@ class HandEvaluatorTest {
         final Hand evaluated = evaluator.evaluate();
 
         // then
-        Assertions.assertNotNull(evaluated);
-        Assertions.assertNotNull(evaluated.getCards());
-        Assertions.assertEquals(5, evaluated.getStrongestCombination().size());
-        Assertions.assertEquals(Ranking.DRILL, evaluated.getRanking());
+        assertHand(evaluated, Ranking.DRILL);
     }
 
     @Test
@@ -246,10 +222,7 @@ class HandEvaluatorTest {
         final Hand evaluated = evaluator.evaluate();
 
         // then
-        Assertions.assertNotNull(evaluated);
-        Assertions.assertNotNull(evaluated.getCards());
-        Assertions.assertEquals(5, evaluated.getStrongestCombination().size());
-        Assertions.assertEquals(Ranking.TWO_PAIRS, evaluated.getRanking());
+        assertHand(evaluated, Ranking.TWO_PAIRS);
     }
 
     @Test
@@ -270,10 +243,14 @@ class HandEvaluatorTest {
         final Hand evaluated = evaluator.evaluate();
 
         // then
+        assertHand(evaluated, Ranking.ONE_PAIR);
+    }
+
+    private void assertHand(final Hand evaluated, final Ranking ranking) {
         Assertions.assertNotNull(evaluated);
         Assertions.assertNotNull(evaluated.getCards());
         Assertions.assertEquals(5, evaluated.getStrongestCombination().size());
-        Assertions.assertEquals(Ranking.ONE_PAIR, evaluated.getRanking());
+        Assertions.assertEquals(ranking, evaluated.getRanking());
     }
 
 }

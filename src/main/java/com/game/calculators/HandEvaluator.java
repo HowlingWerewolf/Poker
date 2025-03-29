@@ -190,7 +190,7 @@ public class HandEvaluator {
                     .filter(card -> card.getValue().equals(matchedEntry.get().getKey()))
                     .toList();
             final List<Card> kickers = HandComparatorUtil.sortCardsDescending(ListUtils.subtract(cardsToEvaluate, matchedCards))
-                    .subList(MAX_HAND_SIZE - matching - 1, cardsToEvaluate.size() - matchedCards.size());
+                    .subList(0, MAX_HAND_SIZE - matching);
 
             return new Hand(cardsToEvaluate, ListUtils.union(matchedCards, HandComparatorUtil.sortCardsDescending(kickers)), ranking);
         }
