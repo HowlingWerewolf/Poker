@@ -34,13 +34,13 @@ public class Deck {
 
         // shuffle the deck
         if (announcerEnabled) {
-        log.info("Shuffling...");
+            log.info("Shuffling...");
         }
         Collections.shuffle(cards);
     }
 
     public Card drawFromDeck() {
-        return cards.remove(0);
+        return cards.removeFirst();
     }
 
     public List<Card> getFlippedDownDeck() {

@@ -40,8 +40,8 @@ public class HandEvaluator {
         }
 
         for (final Card card : cardsToEvaluate) {
-            colorMatrix.put(card.getColor(), colorMatrix.get(card.getColor()) + 1);
-            valueMatrix.put(card.getValue(), valueMatrix.get(card.getValue()) + 1);
+            colorMatrix.put(card.color(), colorMatrix.get(card.color()) + 1);
+            valueMatrix.put(card.value(), valueMatrix.get(card.value()) + 1);
         }
     }
 
@@ -103,8 +103,8 @@ public class HandEvaluator {
         
         if (flushEntry.isPresent()) {
             final List<Card> flushCards = cardsToEvaluate.stream()
-                    .filter(card -> card.getColor().equals(flushEntry.get().getKey()))
-                    .sorted(Comparator.comparing(card -> card.getValue().getIndex()))
+                    .filter(card -> card.color().equals(flushEntry.get().getKey()))
+                    .sorted(Comparator.comparing(card -> card.value().getIndex()))
                     .toList()
                     .subList(0, 5);
             return new Hand(cardsToEvaluate, flushCards, Ranking.FLUSH);
@@ -115,7 +115,7 @@ public class HandEvaluator {
     private Hand getStraightHand() {
         final List<Card> sortedCards = HandComparatorUtil.sortCardsDescending(cardsToEvaluate);
         final Optional<Card> ace = cardsToEvaluate.stream()
-                .filter(card -> card.getValue().equals(Value.ACE))
+                .filter(card -> card.value().equals(Value.ACE))
                 .findFirst();
         final List<Object[]> collect = Combinatorics.combinations(sortedCards.toArray(), 5)
                 .stream()
@@ -135,7 +135,7 @@ public class HandEvaluator {
     private Hand getStraightHand(final List<Card> cards, final Card ace) {
         boolean isStraight = true;
         final boolean isLowestStraight = ace != null &&
-                cards.getLast().getValue().equals(Value.TWO);
+                cards.getLast().value().equals(Value.TWO);
 
         if (isLowestStraight) {
             for (int i = cards.size() - 1; i > 1; i--) {
@@ -164,7 +164,7 @@ public class HandEvaluator {
     }
 
     private boolean isSequence(final Card card1, final Card card2) {
-        return card2.getValue().getIndex() - card1.getValue().getIndex() == 1;
+        return card2.value().getIndex() - card1.value().getIndex() == 1;
     }
 
     protected Hand getPokerHand() {
@@ -187,7 +187,7 @@ public class HandEvaluator {
 
         if (matchedEntry.isPresent()) {
             final List<Card> matchedCards = cardsToEvaluate.stream()
-                    .filter(card -> card.getValue().equals(matchedEntry.get().getKey()))
+                    .filter(card -> card.value().equals(matchedEntry.get().getKey()))
                     .toList();
             final List<Card> kickers = HandComparatorUtil.sortCardsDescending(ListUtils.subtract(cardsToEvaluate, matchedCards))
                     .subList(0, MAX_HAND_SIZE - matching);
@@ -210,10 +210,10 @@ public class HandEvaluator {
 
         if (pair.isPresent() && drill.isPresent()) {
             final List<Card> drillCards = cardsToEvaluate.stream()
-                    .filter(card -> card.getValue().equals(drill.get().getKey()))
+                    .filter(card -> card.value().equals(drill.get().getKey()))
                     .toList();
             final List<Card> pairCards = cardsToEvaluate.stream()
-                    .filter(card -> card.getValue().equals(pair.get().getKey()))
+                    .filter(card -> card.value().equals(pair.get().getKey()))
                     .toList();
             return new Hand(cardsToEvaluate,
                     List.of(drillCards.get(0), drillCards.get(1), drillCards.get(2), pairCards.get(0), pairCards.get(1)),
@@ -230,14 +230,14 @@ public class HandEvaluator {
 
         if (twoPairs.size() == 2) {
             final List<Card> firstPair = cardsToEvaluate.stream()
-                    .filter(card -> card.getValue().equals(twoPairs.getFirst().getKey()))
+                    .filter(card -> card.value().equals(twoPairs.getFirst().getKey()))
                     .toList();
             final List<Card> secondPair = cardsToEvaluate.stream()
-                    .filter(card -> card.getValue().equals(twoPairs.get(1).getKey()))
+                    .filter(card -> card.value().equals(twoPairs.get(1).getKey()))
                     .toList();
             final Optional<Card> kicker =
                     ListUtils.subtract(ListUtils.subtract(cardsToEvaluate, firstPair), secondPair).stream()
-                    .max(Comparator.comparing(card -> card.getValue().getIndex()));
+                    .max(Comparator.comparing(card -> card.value().getIndex()));
             assert (kicker.isPresent());
             return new Hand(cardsToEvaluate,
                     List.of(firstPair.get(0), firstPair.get(1), secondPair.get(0), secondPair.get(1), kicker.get()),

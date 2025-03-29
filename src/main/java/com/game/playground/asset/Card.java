@@ -1,24 +1,12 @@
 package com.game.playground.asset;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 
-import java.util.Objects;
-
-@Getter
-@Setter
 @Builder
-@AllArgsConstructor
-public class Card implements Comparable<Card> {
-    final Color color;
-    final Value value;
-
+public record Card(Color color, Value value) implements Comparable<Card> {
     @Override
     public int compareTo(Card o) {
-        return this.getValue().getIndex().compareTo(o.getValue().getIndex());
+        return this.value().getIndex().compareTo(o.value().getIndex());
     }
 
     @Override
@@ -32,21 +20,16 @@ public class Card implements Comparable<Card> {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(color, value);
-    }
-
-    @Override
     public String toString() {
         return color.name() + " of " + value.toString();
     }
 
     public boolean isSameColor(final Card otherCard) {
-        return this.getColor().equals(otherCard.getColor());
+        return this.color().equals(otherCard.color());
     }
 
     public boolean isSameValue(final Card otherCard) {
-        return this.getValue().equals(otherCard.getValue());
+        return this.value().equals(otherCard.value());
     }
 
 }
