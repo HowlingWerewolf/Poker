@@ -8,7 +8,7 @@ import java.time.Instant;
 @Log
 public class TexasHoldemPerformance {
 
-    private static final Integer MAX = 1000000;
+    private static final Integer MAX = 100000;
 
     public static void main(final String[] args) {
         final Instant start = Instant.now();

@@ -27,7 +27,7 @@ public class TexasGameSimulation {
         board = new Board();
         deck = new Deck();
         openCardsModeEnabled = true;
-        outCalculationModeEnabled = true;
+        outCalculationModeEnabled = false;
         announcerEnabled = true;
     }
 
@@ -73,12 +73,13 @@ public class TexasGameSimulation {
             log.info("Flop!");
         }
 
-        board.getFlippedCards().add(deck.drawFromDeck());
-        board.getFlippedCards().add(deck.drawFromDeck());
-        board.getFlippedCards().add(deck.drawFromDeck());
+        final List<Card> flopCards = new ArrayList<>();
+        flopCards.add(flipCard(deck));
+        flopCards.add(flipCard(deck));
+        flopCards.add(flipCard(deck));
 
         if (announcerEnabled) {
-            log.info(board.getFlippedCards().toString());
+            log.info(flopCards.toString());
         }
 
         if (outCalculationModeEnabled) {
@@ -94,8 +95,7 @@ public class TexasGameSimulation {
             log.info("Turn!");
         }
 
-        final Card turnCard = deck.drawFromDeck();
-        board.getFlippedCards().add(turnCard);
+        final Card turnCard = flipCard(deck);
 
         if (announcerEnabled) {
             log.info(turnCard.toString());
@@ -114,14 +114,13 @@ public class TexasGameSimulation {
             log.info("River!");
         }
 
-        final Card riverCard = deck.drawFromDeck();
-        board.getFlippedCards().add(riverCard);
+        final Card riverCard = flipCard(deck);
 
         if (announcerEnabled) {
             log.info(riverCard.toString());
         }
 
-
+        // My hand
         if (announcerEnabled) {
             log.info("Me:");
         }
@@ -136,6 +135,7 @@ public class TexasGameSimulation {
             log.info("My strongest combination is: " + myHand.getStrongestCombination().toString());
         }
 
+        // MiniMe's hand
         if (announcerEnabled) {
             log.info("MiniMe:");
         }
@@ -160,6 +160,12 @@ public class TexasGameSimulation {
                 log.info("Minime won");
             }
         }
+    }
+
+    private Card flipCard(final Deck deck) {
+        final Card card = deck.drawFromDeck();
+        board.getFlippedCards().add(card);
+        return card;
     }
 
     private static void revealCards(final Player player) {
