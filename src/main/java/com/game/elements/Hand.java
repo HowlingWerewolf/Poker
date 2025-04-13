@@ -47,18 +47,17 @@ public class Hand implements Comparable<Hand> {
 
         // ranking is the same
         // secondly each ranking has their own rule for decision
-        switch (this.ranking) {
-            case HIGH_CARD: return HandComparatorUtil.compareHighCardHands(evaluatedHand, otherEvaluatedHand);
-            case ONE_PAIR: return HandComparatorUtil.comparePairHands(evaluatedHand, otherEvaluatedHand);
-            case TWO_PAIRS: return HandComparatorUtil.compareTwoPairHands(evaluatedHand, otherEvaluatedHand);
-            case DRILL: return HandComparatorUtil.compareDrillHands(evaluatedHand, otherEvaluatedHand);
-            case STRAIGHT: return HandComparatorUtil.compareStraightHands(evaluatedHand, otherEvaluatedHand);
-            case FLUSH: return HandComparatorUtil.compareFlushHands(evaluatedHand, otherEvaluatedHand);
-            case FULL_HOUSE: return HandComparatorUtil.compareFullHouseHands(evaluatedHand, otherEvaluatedHand);
-            case POKER: return HandComparatorUtil.comparePokerHands(evaluatedHand, otherEvaluatedHand);
-            case STRAIGHT_FLUSH: return HandComparatorUtil.compareStraightFlushHands(evaluatedHand, otherEvaluatedHand);
-            default: return 0;
-        }
+        return switch (this.ranking) {
+            case HIGH_CARD -> HandComparatorUtil.compareHighCardHands(evaluatedHand, otherEvaluatedHand);
+            case ONE_PAIR -> HandComparatorUtil.comparePairHands(evaluatedHand, otherEvaluatedHand);
+            case TWO_PAIRS -> HandComparatorUtil.compareTwoPairHands(evaluatedHand, otherEvaluatedHand);
+            case DRILL -> HandComparatorUtil.compareDrillHands(evaluatedHand, otherEvaluatedHand);
+            case STRAIGHT -> HandComparatorUtil.compareStraightHands(evaluatedHand, otherEvaluatedHand);
+            case FLUSH -> HandComparatorUtil.compareFlushHands(evaluatedHand, otherEvaluatedHand);
+            case FULL_HOUSE -> HandComparatorUtil.compareFullHouseHands(evaluatedHand, otherEvaluatedHand);
+            case POKER -> HandComparatorUtil.comparePokerHands(evaluatedHand, otherEvaluatedHand);
+            case STRAIGHT_FLUSH -> HandComparatorUtil.compareStraightFlushHands(evaluatedHand, otherEvaluatedHand);
+        };
     }
 
     @Override

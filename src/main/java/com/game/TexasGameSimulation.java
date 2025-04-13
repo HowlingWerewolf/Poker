@@ -2,9 +2,9 @@ package com.game;
 
 import com.game.actor.Player;
 import com.game.calculators.HandEvaluator;
-import com.game.calculators.OutCalculatorUtil;
+import com.game.calculators.OutCalculator;
 import com.game.elements.Hand;
-import com.game.playground.Board;
+import com.game.playground.Table;
 import com.game.playground.Deck;
 import com.game.playground.asset.Card;
 import lombok.extern.java.Log;
@@ -16,7 +16,7 @@ import java.util.List;
 @Log
 public class TexasGameSimulation {
 
-    final Board board;
+    final Table table;
     final Deck deck;
 
     final boolean openCardsModeEnabled;
@@ -24,7 +24,7 @@ public class TexasGameSimulation {
     final boolean announcerEnabled;
 
     TexasGameSimulation() {
-        board = new Board();
+        table = new Table();
         deck = new Deck();
         openCardsModeEnabled = true;
         outCalculationModeEnabled = false;
@@ -34,7 +34,7 @@ public class TexasGameSimulation {
     TexasGameSimulation(final boolean openCardsModeEnabled,
                         final boolean outCalculationModeEnabled,
                         final boolean announcerEnabled) {
-        board = new Board();
+        table = new Table();
         deck = new Deck(announcerEnabled);
         this.openCardsModeEnabled = openCardsModeEnabled;
         this.outCalculationModeEnabled = outCalculationModeEnabled;
@@ -124,7 +124,7 @@ public class TexasGameSimulation {
         if (announcerEnabled) {
             log.info("Me:");
         }
-        final List<Card> myCards = new ArrayList<>(board.getFlippedCards());
+        final List<Card> myCards = new ArrayList<>(table.getFlippedCards());
         myCards.addAll(me.getCards());
         final HandEvaluator myHandEvaluator = new HandEvaluator(myCards);
         final Hand myHand = myHandEvaluator.evaluate();
@@ -140,7 +140,7 @@ public class TexasGameSimulation {
             log.info("MiniMe:");
         }
 
-        final List<Card> otherCards = new ArrayList<>(board.getFlippedCards());
+        final List<Card> otherCards = new ArrayList<>(table.getFlippedCards());
         otherCards.addAll(miniMe.getCards());
         final HandEvaluator otherHandEvaluator = new HandEvaluator(otherCards);
         final Hand otherHand = otherHandEvaluator.evaluate();
@@ -164,11 +164,11 @@ public class TexasGameSimulation {
 
     private Card flipCard(final Deck deck) {
         final Card card = deck.drawFromDeck();
-        board.getFlippedCards().add(card);
+        table.getFlippedCards().add(card);
         return card;
     }
 
-    private static void revealCards(final Player player) {
+    private void revealCards(final Player player) {
         log.info(player.getCards().toString());
     }
 
@@ -187,7 +187,8 @@ public class TexasGameSimulation {
     }
 
     private void calculateOuts(final Player player) {
-        log.info(OutCalculatorUtil.getAllOuts(new Hand(player.getCards(), null, null),
+        log.info(OutCalculator.getAllOuts(player.getCards(),
+                table.getFlippedCards(),
                 deck.getFlippedDownDeck()).toString());
     }
 
