@@ -124,4 +124,29 @@ class OddsCalculatorTest implements CardDrawing {
         assertPlayersWinRatioSumIsOne(players);
     }
 
+    @Test
+    void setWinRatioTwoPlayerPreflopTest() throws IllegalAccessException {
+        // given
+        final Table table = new Table(announcerEnabled);
+        final Deck deck = table.getDeck();
+
+        // find two cards from the deck
+        final Player playerOne = new Player();
+        giveCardToPlayerFromDeck(Color.CLUB, Value.ACE, playerOne, deck);
+        giveCardToPlayerFromDeck(Color.CLUB, Value.KING, playerOne, deck);
+
+        // find two cards from the deck
+        final Player playerTwo = new Player();
+        giveCardToPlayerFromDeck(Color.HEART, Value.TWO, playerTwo, deck);
+        giveCardToPlayerFromDeck(Color.SPADE, Value.SEVEN, playerTwo, deck);
+
+        // when
+        final OddsCalculator oddsCalculator = new OddsCalculator();
+        final List<Player> players = List.of(playerOne, playerTwo);
+        oddsCalculator.setWinRatio(players, table);
+
+        // then
+        assertPlayersWinRatioSumIsOne(players);
+    }
+
 }
