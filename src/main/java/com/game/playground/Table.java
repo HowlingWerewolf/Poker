@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 @Getter
@@ -14,6 +15,7 @@ import java.util.List;
 public class Table {
     final List<Card> flippedCards = new ArrayList<>();
     final List<Player> players = new ArrayList<>();
+    final List<List<Card>> outs = new ArrayList<>();
     final Deck deck;
     // TODO chips?
 

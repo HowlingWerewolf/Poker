@@ -18,7 +18,7 @@ class OddsCalculatorTest implements CardDrawing {
     final boolean announcerEnabled = true;
 
     @Test
-    void setWinRatioTwoPlayerTest() {
+    void setWinRatioTwoPlayerFlopTest() throws IllegalAccessException {
         // given
         final Table table = new Table(announcerEnabled);
         final Deck deck = table.getDeck();
@@ -59,7 +59,7 @@ class OddsCalculatorTest implements CardDrawing {
     }
 
     @Test
-    void setWinRatioThreePlayerTest() {
+    void setWinRatioThreePlayerFlopTest() throws IllegalAccessException {
         // given
         final Table table = new Table(announcerEnabled);
         final Deck deck = table.getDeck();
@@ -91,7 +91,37 @@ class OddsCalculatorTest implements CardDrawing {
         oddsCalculator.setWinRatio(players, table);
 
         // then
-        assertEquals(1.0d, playerOne.getWinRatio() + playerTwo.getWinRatio() + playerThree.getWinRatio());
+        assertPlayersWinRatioSumIsOne(players);
+    }
+
+    @Test
+    void setWinRatioThreePlayerPreflopTest() throws IllegalAccessException {
+        // given
+        final Table table = new Table(announcerEnabled);
+        final Deck deck = table.getDeck();
+
+        // find two cards from the deck
+        final Player playerOne = new Player();
+        giveCardToPlayerFromDeck(Color.CLUB, Value.ACE, playerOne, deck);
+        giveCardToPlayerFromDeck(Color.CLUB, Value.KING, playerOne, deck);
+
+        // find two cards from the deck
+        final Player playerTwo = new Player();
+        giveCardToPlayerFromDeck(Color.HEART, Value.TWO, playerTwo, deck);
+        giveCardToPlayerFromDeck(Color.SPADE, Value.SEVEN, playerTwo, deck);
+
+        // find two cards from the deck
+        final Player playerThree = new Player();
+        giveCardToPlayerFromDeck(Color.HEART, Value.FOUR, playerThree, deck);
+        giveCardToPlayerFromDeck(Color.SPADE, Value.FIVE, playerThree, deck);
+
+        // when
+        final OddsCalculator oddsCalculator = new OddsCalculator();
+        final List<Player> players = List.of(playerOne, playerTwo, playerThree);
+        oddsCalculator.setWinRatio(players, table);
+
+        // then
+        assertPlayersWinRatioSumIsOne(players);
     }
 
 }

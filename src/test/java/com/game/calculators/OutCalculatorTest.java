@@ -8,9 +8,7 @@ import com.game.playground.asset.Color;
 import com.game.playground.asset.Value;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -36,7 +34,7 @@ class OutCalculatorTest implements CardDrawing {
         flippedCards.add(findCardFromDeck(Color.SPADE, Value.TWO, deck));
 
         // when
-        final Map<List<Card>, List<Card>> result =
+        final List<List<Card>> result =
                 OutCalculator.getAllOuts(player.getCards(), flippedCards, deck.getFlippedDownDeck());
 
         // then

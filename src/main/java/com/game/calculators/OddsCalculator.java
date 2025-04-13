@@ -7,62 +7,59 @@ import com.game.playground.asset.Card;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 public class OddsCalculator {
 
     /**
      * Evaluates all outs and decides for each which has the strongest hand.
      *
-     * @param players
-     * @param table
+     * @param players players currently playing at the table
+     * @param table   the playground
      */
-    public void setWinRatio(final List<Player> players, final Table table) {
-        for (final var player : players) {
-            calculateOdds(table, player);
-        }
+    public void setWinRatio(final List<Player> players, final Table table) throws IllegalAccessException {
+        calculateOuts(table, players);
 
-        // possibleOutcomes are the cards that can be drawn from the deck
-        final Player firstPlayer = players.stream().findFirst().orElseThrow(IllegalArgumentException::new);
-        final Set<List<Card>> possibleOutcomes = firstPlayer.getOuts().keySet();
         final Map<Player, Integer> wins = new HashMap<>();
         players.forEach(player -> wins.put(player, 0));
 
-        for (final var possibleOutcome : possibleOutcomes) {
+        // possibleOutcomes are the cards that can be drawn from the deck
+        for (final var possibleOutcome : table.getOuts()) {
             // this is a maximum search for each possibleOutcome
             // note that draw is possible
             final List<Player> playersWithStrongestHand = new ArrayList<>();
             Hand strongestHand = null;
 
             for (final var player : players) {
-                strongestHand = evaluateStrongestHand(possibleOutcome, player, playersWithStrongestHand, strongestHand);
+                strongestHand = evaluateStrongestHand(possibleOutcome, table, player, playersWithStrongestHand, strongestHand);
             }
 
             playersWithStrongestHand.forEach(player -> wins.put(player, wins.get(player) + 1));
         }
 
+        // sum up all cases where the player or players won
         final AtomicReference<Double> winsWithDraws = new AtomicReference<>((double) 0);
         wins.values().forEach(win -> winsWithDraws.getAndSet((winsWithDraws.get() + win)));
 
-        for (var player : players) {
-            player.setWinRatio((double) wins.get(player) / winsWithDraws.get());
-        }
+        // set the calculated win ratio for the players
+        players.forEach(player -> player.setWinRatio((double) wins.get(player) / winsWithDraws.get()));
     }
 
-    private Hand evaluateStrongestHand(List<Card> key, Player player, List<Player> playersWithStrongestHand, Hand strongestHand) {
-        final var cardsAvailable = player.getOuts().get(key);
-        if (CollectionUtils.isEmpty(cardsAvailable)) {
+    private Hand evaluateStrongestHand(final List<Card> possibleOutcome, final Table table, final Player player,
+                                       final List<Player> playersWithStrongestHand, Hand strongestHand) {
+        if (CollectionUtils.isEmpty(table.getDeck().getFlippedDownDeck())) {
             throw new IllegalArgumentException();
         }
 
-        final var possibleOutcome = new ArrayList<>(cardsAvailable);
-        possibleOutcome.addAll(key);
+        final List<Card> cardCombination = Stream.of(player.getCards(), table.getFlippedCards(), possibleOutcome)
+                .flatMap(Collection::stream).toList();
 
-        final Hand hand = new HandEvaluator(possibleOutcome).evaluate();
+        final Hand hand = new HandEvaluator(cardCombination).evaluate();
 
         if (playersWithStrongestHand.isEmpty()) {
             playersWithStrongestHand.add(player);
@@ -80,11 +77,11 @@ public class OddsCalculator {
         return strongestHand;
     }
 
-    private void calculateOdds(final Table table, final Player player) {
-        player.getOuts().clear();
-        final Map<List<Card>, List<Card>> allOuts =
-                OutCalculator.getAllOuts(player.getCards(), table.getFlippedCards(), table.getDeck().getFlippedDownDeck());
-        player.getOuts().putAll(allOuts);
+    private void calculateOuts(final Table table, final List<Player> players) throws IllegalAccessException {
+        table.getOuts().clear();
+        final List<List<Card>> allOuts =
+                OutCalculator.getAllOuts(players.stream().findFirst().orElseThrow(IllegalAccessException::new).getCards(), table.getFlippedCards(), table.getDeck().getFlippedDownDeck());
+        table.getOuts().addAll(allOuts);
     }
 
     /**
