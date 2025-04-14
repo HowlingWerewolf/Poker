@@ -33,12 +33,11 @@ public class Hand implements Comparable<Hand> {
     }
 
     @Override
-    public int compareTo(final Hand otherHand) {
-        final HandEvaluator handEvaluator = new HandEvaluator(this.getCards());
-        final HandEvaluator otherHandEvaluator = new HandEvaluator(otherHand.getCards());
-
-        final Hand evaluatedHand = handEvaluator.evaluate();
-        final Hand otherEvaluatedHand = otherHandEvaluator.evaluate();
+    public int compareTo(final Hand other) {
+        final Hand evaluatedHand = this.strongestCombination == null
+                ? new HandEvaluator(this.getCards()).evaluate() : this;
+        final Hand otherEvaluatedHand = other.getStrongestCombination() == null
+                ? new HandEvaluator(other.getCards()).evaluate() : other;
 
         // firstly the ranking decides
         if (!evaluatedHand.ranking.getStrength().equals(otherEvaluatedHand.ranking.getStrength())) {

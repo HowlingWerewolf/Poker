@@ -7,15 +7,21 @@ import com.game.playground.asset.Card;
 import com.game.playground.asset.Color;
 import com.game.playground.asset.Value;
 import lombok.Getter;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.collections4.SetUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import static com.game.calculators.Constants.MAX_HAND_SIZE;
 
@@ -47,6 +53,7 @@ public class HandEvaluator {
 
     /**
      * Evaluates the card ranking.
+     *
      * @return the strongest hand
      */
     public Hand evaluate() {
@@ -100,7 +107,7 @@ public class HandEvaluator {
                 .stream()
                 .filter(color -> color.getValue() >= 5)
                 .findFirst();
-        
+
         if (flushEntry.isPresent()) {
             final List<Card> flushCards = cardsToEvaluate.stream()
                     .filter(card -> card.color().equals(flushEntry.get().getKey()))
@@ -113,54 +120,155 @@ public class HandEvaluator {
     }
 
     private Hand getStraightHand() {
-        final List<Card> sortedCards = HandComparatorUtil.sortCardsDescending(cardsToEvaluate);
-        final Optional<Card> ace = cardsToEvaluate.stream()
-                .filter(card -> card.value().equals(Value.ACE))
-                .findFirst();
-        final List<Object[]> collect = Combinatorics.combinations(sortedCards.toArray(), 5)
-                .stream()
+        final int distinctValueCount = getDistinctValues().size();
+        if (distinctValueCount < 5) {
+            return null;
+        }
+
+        // partition valuematrix by neighbors - any with size 5 indicates we have a straight
+        final boolean hasStraight = getPartitions().stream().anyMatch(partition -> partition.size() >= 5);
+
+        if (hasStraight) {
+            final List<Card> sortedCardsDescending = HandComparatorUtil.sortCardsDescending(cardsToEvaluate);
+            final List<List<Card>> combinations =
+                    Combinatorics.combinations(sortedCardsDescending.toArray(), 5)
+                            .stream()
+                            .map(o -> Arrays.stream(o).map(c -> (Card) c).toList())
+                            .toList();
+
+            for (final List<Card> fiveCards : combinations) {
+                final Hand hand = getStraightHand(fiveCards);
+                if (hand != null) {
+                    return hand;
+                }
+            }
+        }
+
+        return getLowestStraightOrEmpty();
+    }
+
+    private List<List<Value>> getPartitions() {
+        final List<Value> values = valueMatrix.entrySet().stream()
+                .filter(e -> e.getValue() > 0)
+                .map(Map.Entry::getKey)
+                .sorted((o1, o2) -> o2.getIndex().compareTo(o1.getIndex()))
                 .toList();
 
-        for (final Object[] fiveCardHandAsObj : collect) {
-            final List<Card> fiveCardHand = Arrays.stream(fiveCardHandAsObj).map(o -> (Card) o).toList();
-            final Hand hand = getStraightHand(fiveCardHand, ace.orElse(null));
-            if (hand != null) {
-                return hand;
+        final List<List<Value>> partitionedValues = new ArrayList<>(7);
+        List<Value> currentPartition = new ArrayList<>();
+        Value previousValue = null;
+        for (final Value value : values) {
+            if (previousValue == null) {
+                currentPartition.add(value);
+            } else if (previousValue.getIndex() - 1 == value.getIndex()) {
+                currentPartition.add(value);
+            } else {
+                partitionedValues.add(currentPartition.stream().toList());
+                currentPartition.clear();
+                currentPartition.add(value);
             }
+            previousValue = value;
+        }
+
+        if (CollectionUtils.isNotEmpty(currentPartition)) {
+            partitionedValues.add(currentPartition.stream().toList());
+            currentPartition.clear();
+        }
+        return partitionedValues;
+    }
+
+    private Hand getLowestStraightOrEmpty() {
+        // check if the ace considered as one then the straight
+        // by removing elements from a complete lowest straight
+        final Set<Value> theLowestStraight =
+                SetUtils.hashSet(Value.ACE, Value.TWO, Value.THREE, Value.FOUR, Value.FIVE);
+        valueMatrix.entrySet().stream()
+                .filter(e -> e.getValue() > 0)
+                .map(Map.Entry::getKey)
+                .forEach(theLowestStraight::remove);
+
+        if (theLowestStraight.isEmpty()) {
+            final List<Card> cards = cardsToEvaluate.stream()
+                    .filter(card -> SetUtils.hashSet(Value.ACE, Value.TWO, Value.THREE, Value.FOUR, Value.FIVE).contains(card.value()))
+                    .toList();
+            final List<Card> sortedCards = HandComparatorUtil.sortCardsDescending(cards);
+
+            keepOnlyDominantColor(sortedCards);
+
+            return new Hand(cardsToEvaluate, List.of(sortedCards.get(4), sortedCards.get(0), sortedCards.get(1),
+                    sortedCards.get(2), sortedCards.get(3)), Ranking.STRAIGHT);
+        }
+        return null;
+    }
+
+    private void keepOnlyDominantColor(final List<Card> sortedCards) {
+        if (sortedCards.size() > 5) {
+            // if there's more cards for the lowest straight, a pair, only keep the one with dominant color
+            final Map<Color, Long> colorCount = sortedCards.stream()
+                    .map(Card::color)
+                    .collect(Collectors.groupingBy(color -> color, Collectors.counting()));
+            final AtomicReference<Long> max = new AtomicReference<>((long) 0);
+            colorCount.values().forEach(count -> {
+                if (count > max.get()) {
+                    max.getAndSet(count);
+                }
+            });
+            final Color dominantColor = colorCount.entrySet().stream()
+                    .filter(e -> e.getValue().equals(max.get()))
+                    .map(Map.Entry::getKey)
+                    .findFirst().orElseThrow(IllegalArgumentException::new);
+            for (int i = sortedCards.size(); i > 5 ; i--) {
+                final Optional<Card> removable = sortedCards.stream()
+                        .filter(card -> valueMatrix.get(card.value()) > 1)
+                        .filter(card -> card.color().equals(dominantColor)).findFirst();
+                if (removable.isPresent()) {
+                    sortedCards.remove(removable.get());
+                } else {
+                    final Optional<Card> colorIndependentRemovable = sortedCards.stream()
+                            .filter(card -> valueMatrix.get(card.value()) > 1).findFirst();
+                    if (colorIndependentRemovable.isPresent()) {
+                        sortedCards.remove(colorIndependentRemovable.get());
+                    } else {
+                        throw new IllegalArgumentException();
+                    }
+                }
+            }
+        }
+
+        if (sortedCards.size() != 5) {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    private List<Value> getDistinctValues() {
+        return valueMatrix.entrySet().stream()
+                .filter(e -> e.getValue() > 0)
+                .map(Map.Entry::getKey)
+                .toList();
+    }
+
+    private Hand getStraightHand(final List<Card> cards) {
+        final Set<Value> values = cards.stream().map(Card::value).collect(Collectors.toUnmodifiableSet());
+        if (values.size() != 5) {
+            return null;
+        }
+
+        if (isIsStraight(cards)) {
+            return new Hand(cardsToEvaluate, cards, Ranking.STRAIGHT);
         }
 
         return null;
     }
 
-    private Hand getStraightHand(final List<Card> cards, final Card ace) {
-        boolean isStraight = true;
-        final boolean isLowestStraight = ace != null &&
-                cards.getLast().value().equals(Value.TWO);
-
-        if (isLowestStraight) {
-            for (int i = cards.size() - 1; i > 1; i--) {
-                isStraight = isSequence(cards.get(i), cards.get(i - 1));
-                if (!isStraight) {
-                    break;
-                }
-            }
-        } else {
-            for (int i = cards.size() - 1; i > 0; i--) {
-                isStraight = isSequence(cards.get(i), cards.get(i - 1));
-                if (!isStraight) {
-                    break;
-                }
+    private boolean isIsStraight(final List<Card> cards) {
+        boolean optimisticCheck = true;
+        for (int i = cards.size() - 1; i > 0; i--) {
+            optimisticCheck = isSequence(cards.get(i), cards.get(i - 1));
+            if (!optimisticCheck) {
+                break;
             }
         }
-
-        return isStraight ? getStraight(cards, ace, isLowestStraight) : null;
-    }
-
-    private Hand getStraight(final List<Card> cards, final Card ace, final boolean isLowestStraight) {
-        return isLowestStraight
-                ? new Hand(cardsToEvaluate, List.of(ace, cards.get(0), cards.get(1), cards.get(2), cards.get(3)),
-                Ranking.STRAIGHT)
-                : new Hand(cardsToEvaluate, cards, Ranking.STRAIGHT);
+        return optimisticCheck;
     }
 
     private boolean isSequence(final Card card1, final Card card2) {
@@ -237,7 +345,7 @@ public class HandEvaluator {
                     .toList();
             final Optional<Card> kicker =
                     ListUtils.subtract(ListUtils.subtract(cardsToEvaluate, firstPair), secondPair).stream()
-                    .max(Comparator.comparing(card -> card.value().getIndex()));
+                            .max(Comparator.comparing(card -> card.value().getIndex()));
             assert (kicker.isPresent());
             return new Hand(cardsToEvaluate,
                     List.of(firstPair.get(0), firstPair.get(1), secondPair.get(0), secondPair.get(1), kicker.get()),

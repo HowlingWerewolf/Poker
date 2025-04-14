@@ -13,9 +13,9 @@ import java.util.Set;
 @Getter
 @Setter
 public class Table {
-    final List<Card> flippedCards = new ArrayList<>();
-    final List<Player> players = new ArrayList<>();
-    final List<List<Card>> outs = new ArrayList<>();
+    final List<Card> flippedCards = new ArrayList<>(5);
+    final List<Player> players = new ArrayList<>(8);
+    final List<List<Card>> outs = new ArrayList<>(1000);
     final Deck deck;
     // TODO chips?
 

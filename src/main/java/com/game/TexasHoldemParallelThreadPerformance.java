@@ -11,8 +11,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class TexasHoldemParallelThreadPerformance {
 
     private static final Integer MAX = 500000;
-    private static final Integer CHUNK = 32;
-    private static final Integer THREAD_COUNT = 8;
+    private static final Integer CHUNK = 100000;
+    private static final Integer THREAD_COUNT = 5;
 
     public static void main(final String[] args) {
         final Instant start = Instant.now();

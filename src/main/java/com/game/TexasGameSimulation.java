@@ -96,7 +96,6 @@ public class TexasGameSimulation {
         }
 
         final Card turnCard = flipCard(deck);
-
         if (announcerEnabled) {
             log.info(turnCard.toString());
         }
@@ -115,7 +114,6 @@ public class TexasGameSimulation {
         }
 
         final Card riverCard = flipCard(deck);
-
         if (announcerEnabled) {
             log.info(riverCard.toString());
         }

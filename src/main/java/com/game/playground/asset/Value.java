@@ -2,6 +2,8 @@ package com.game.playground.asset;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+
 @Getter
 public enum Value {
     TWO(2),
@@ -23,5 +25,10 @@ public enum Value {
 
     Value(int i) {
         this.index = i;
+    }
+
+    public static Value indexToValue(final int i) {
+        return Arrays.stream(values())
+                .filter(value -> value.getIndex().equals(i)).findFirst().orElse(null);
     }
 }

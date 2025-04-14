@@ -5,6 +5,7 @@ import com.game.elements.Hand;
 import com.game.playground.Table;
 import com.game.playground.asset.Card;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,21 +26,15 @@ public class OddsCalculator {
     public void setWinRatio(final List<Player> players, final Table table) throws IllegalAccessException {
         calculateOuts(table, players);
 
-        final Map<Player, Integer> wins = new HashMap<>();
+        final Map<Player, Integer> wins = HashMap.newHashMap(players.size());
         players.forEach(player -> wins.put(player, 0));
 
         // possibleOutcomes are the cards that can be drawn from the deck
         for (final var possibleOutcome : table.getOuts()) {
             // this is a maximum search for each possibleOutcome
             // note that draw is possible
-            final List<Player> playersWithStrongestHand = new ArrayList<>();
-            Hand strongestHand = null;
-
-            for (final var player : players) {
-                strongestHand = evaluateStrongestHand(possibleOutcome, table, player, playersWithStrongestHand, strongestHand);
-            }
-
-            playersWithStrongestHand.forEach(player -> wins.put(player, wins.get(player) + 1));
+            final var playersWithStrongestHand = findStrongestHands(players, table, possibleOutcome);
+            playersWithStrongestHand.getRight().forEach(player -> wins.put(player, wins.get(player) + 1));
         }
 
         // sum up all cases where the player or players won
@@ -50,8 +45,19 @@ public class OddsCalculator {
         players.forEach(player -> player.setWinRatio((double) wins.get(player) / winsWithDraws.get()));
     }
 
-    private Hand evaluateStrongestHand(final List<Card> possibleOutcome, final Table table, final Player player,
-                                       final List<Player> playersWithStrongestHand, Hand strongestHand) {
+    private Pair<Hand, List<Player>> findStrongestHands(final List<Player> players, final Table table,
+                                                        final List<Card> possibleOutcome) {
+        final List<Player> playersWithStrongestHand = new ArrayList<>(1);
+        Hand strongestHand = null;
+
+        for (final var player : players) {
+            final Hand hand = evaluateHand(possibleOutcome, table, player);
+            strongestHand = getStrongestHand(player, hand, playersWithStrongestHand, strongestHand);
+        }
+        return Pair.of(strongestHand, playersWithStrongestHand);
+    }
+
+    private Hand evaluateHand(final List<Card> possibleOutcome, final Table table, final Player player) {
         if (CollectionUtils.isEmpty(table.getDeck().getFlippedDownDeck())) {
             throw new IllegalArgumentException();
         }
@@ -59,8 +65,11 @@ public class OddsCalculator {
         final List<Card> cardCombination = Stream.of(player.getCards(), table.getFlippedCards(), possibleOutcome)
                 .flatMap(Collection::stream).toList();
 
-        final Hand hand = new HandEvaluator(cardCombination).evaluate();
+        return new HandEvaluator(cardCombination).evaluate();
+    }
 
+    private Hand getStrongestHand(final Player player, final Hand hand,
+                                  final List<Player> playersWithStrongestHand, Hand strongestHand) {
         if (playersWithStrongestHand.isEmpty()) {
             playersWithStrongestHand.add(player);
             strongestHand = hand;
@@ -80,7 +89,9 @@ public class OddsCalculator {
     private void calculateOuts(final Table table, final List<Player> players) throws IllegalAccessException {
         table.getOuts().clear();
         final List<List<Card>> allOuts =
-                OutCalculator.getAllOuts(players.stream().findFirst().orElseThrow(IllegalAccessException::new).getCards(), table.getFlippedCards(), table.getDeck().getFlippedDownDeck());
+                OutCalculator.getAllOuts(players.stream().findFirst()
+                        .orElseThrow(IllegalAccessException::new).getCards(), table.getFlippedCards(),
+                        table.getDeck().getFlippedDownDeck());
         table.getOuts().addAll(allOuts);
     }
 

@@ -11,7 +11,7 @@ import java.util.List;
 
 @Log
 public class Deck {
-    final List<Card> cards = new ArrayList<>();
+    final List<Card> cards = new ArrayList<>(52);
     final boolean announcerEnabled;
 
     public Deck() {

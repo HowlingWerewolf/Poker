@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.game.calculators.Constants.DRILL_SIZE;
 import static com.game.calculators.Constants.MAX_HAND_SIZE;
@@ -49,7 +50,7 @@ public class HandComparatorUtil {
         return cards.stream()
                 .sorted(Comparator.comparing(card -> card.value().getIndex()))
                 .sorted(Comparator.reverseOrder())
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public static int comparePairHands(final Hand hand, final Hand otherHand) {

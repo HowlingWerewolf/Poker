@@ -100,6 +100,69 @@ class HandEvaluatorTest {
     }
 
     @Test
+    void testStraightFlushTricky() {
+        // given
+        final List<Card> hand = List.of(
+                new Card(Color.CLUB, Value.ACE),
+                new Card(Color.HEART, Value.KING),
+                new Card(Color.CLUB, Value.KING),
+                new Card(Color.CLUB, Value.QUEEN),
+                new Card(Color.SPADE, Value.QUEEN),
+                new Card(Color.CLUB, Value.JACK),
+                new Card(Color.CLUB, Value.TEN)
+        );
+        final HandEvaluator evaluator = new HandEvaluator(hand);
+
+        // when
+        final Hand evaluated = evaluator.evaluate();
+
+        // then
+        assertHand(evaluated, Ranking.STRAIGHT_FLUSH);
+    }
+
+    @Test
+    void testStraightFlushTricky2() {
+        // given
+        final List<Card> hand = List.of(
+                new Card(Color.HEART, Value.KING),
+                new Card(Color.CLUB, Value.KING),
+                new Card(Color.CLUB, Value.QUEEN),
+                new Card(Color.SPADE, Value.QUEEN),
+                new Card(Color.CLUB, Value.JACK),
+                new Card(Color.CLUB, Value.TEN),
+                new Card(Color.CLUB, Value.NINE)
+        );
+        final HandEvaluator evaluator = new HandEvaluator(hand);
+
+        // when
+        final Hand evaluated = evaluator.evaluate();
+
+        // then
+        assertHand(evaluated, Ranking.STRAIGHT_FLUSH);
+    }
+
+    @Test
+    void testStraightFlushTricky3() {
+        // given
+        final List<Card> hand = List.of(
+                new Card(Color.CLUB, Value.ACE),
+                new Card(Color.CLUB, Value.QUEEN),
+                new Card(Color.SPADE, Value.QUEEN),
+                new Card(Color.CLUB, Value.JACK),
+                new Card(Color.CLUB, Value.TEN),
+                new Card(Color.CLUB, Value.NINE),
+                new Card(Color.CLUB, Value.EIGHT)
+        );
+        final HandEvaluator evaluator = new HandEvaluator(hand);
+
+        // when
+        final Hand evaluated = evaluator.evaluate();
+
+        // then
+        assertHand(evaluated, Ranking.STRAIGHT_FLUSH);
+    }
+
+    @Test
     void testPoker() {
         // given
         final List<Card> hand = List.of(

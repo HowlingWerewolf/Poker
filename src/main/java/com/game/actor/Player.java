@@ -10,6 +10,6 @@ import java.util.List;
 @Getter
 @Setter
 public class Player {
-    final List<Card> cards = new ArrayList<>();
+    final List<Card> cards = new ArrayList<>(2);
     double winRatio = Double.NaN;
 }
