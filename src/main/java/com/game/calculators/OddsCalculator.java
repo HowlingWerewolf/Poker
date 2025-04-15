@@ -50,6 +50,10 @@ public class OddsCalculator {
         final List<Player> playersWithStrongestHand = new ArrayList<>(1);
         Hand strongestHand = null;
 
+        if (CollectionUtils.isEmpty(table.getDeck().getFlippedDownDeck())) {
+            throw new IllegalArgumentException();
+        }
+
         for (final var player : players) {
             final Hand hand = evaluateHand(possibleOutcome, table, player);
             strongestHand = getStrongestHand(player, hand, playersWithStrongestHand, strongestHand);
@@ -58,13 +62,8 @@ public class OddsCalculator {
     }
 
     private Hand evaluateHand(final List<Card> possibleOutcome, final Table table, final Player player) {
-        if (CollectionUtils.isEmpty(table.getDeck().getFlippedDownDeck())) {
-            throw new IllegalArgumentException();
-        }
-
         final List<Card> cardCombination = Stream.of(player.getCards(), table.getFlippedCards(), possibleOutcome)
                 .flatMap(Collection::stream).toList();
-
         return new HandEvaluator(cardCombination).evaluate();
     }
 
@@ -90,15 +89,19 @@ public class OddsCalculator {
         table.getOuts().clear();
         final List<List<Card>> allOuts =
                 OutCalculator.getAllOuts(players.stream().findFirst()
-                        .orElseThrow(IllegalAccessException::new).getCards(), table.getFlippedCards(),
+                                .orElseThrow(IllegalAccessException::new).getCards(), table.getFlippedCards(),
                         table.getDeck().getFlippedDownDeck());
         table.getOuts().addAll(allOuts);
     }
 
     /**
-     * @param outs
+     * Calculates odds blindly for one player.
+     *
+     * @param players
+     * @param table
+     * @param playerCount
      */
-    public void getOddsForOnePlayer(final Map<List<Card>, List<Card>> outs, final int playerCount) {
+    public void getOddsForOnePlayer(final Player players, final Table table, final int playerCount) {
         // TODO generate all possible hands for other players and
         // TODO calculate outcomes where the current player wins
     }
