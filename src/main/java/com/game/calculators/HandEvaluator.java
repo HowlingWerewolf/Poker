@@ -347,7 +347,7 @@ public class HandEvaluator {
             final List<Card> kickers = HandComparatorUtil.sortCardsDescending(ListUtils.subtract(cardsToEvaluate, matchedCards))
                     .subList(0, MAX_HAND_SIZE - matching);
 
-            return new Hand(cardsToEvaluate, ListUtils.union(matchedCards, HandComparatorUtil.sortCardsDescending(kickers)), ranking);
+            return new Hand(cardsToEvaluate, HandComparatorUtil.sortCardsDescending(ListUtils.union(matchedCards, kickers)), ranking);
         }
         return null;
     }
