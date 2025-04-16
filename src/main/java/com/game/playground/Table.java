@@ -33,6 +33,7 @@ public class Table implements Cloneable {
         try {
             return (Table) super.clone();
         } catch (final CloneNotSupportedException e) {
+            // TODO better throw dedicated exceptions
             throw new RuntimeException(e);
         }
     }

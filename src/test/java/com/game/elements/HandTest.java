@@ -223,7 +223,7 @@ class HandTest {
         final int result = hand.compareTo(otherHand);
 
         // then
-        Assertions.assertEquals(1, result);
+        Assertions.assertEquals(2, result);
     }
 
     @Test
@@ -392,7 +392,7 @@ class HandTest {
         final int result = hand.compareTo(otherHand);
 
         // then
-        Assertions.assertEquals(1, result);
+        Assertions.assertEquals(3, result);
     }
 
     @Test

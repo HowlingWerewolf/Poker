@@ -4,9 +4,10 @@ import lombok.Builder;
 
 @Builder
 public record Card(Color color, Value value) implements Comparable<Card> {
+
     @Override
-    public int compareTo(Card o) {
-        return this.value().getIndex().compareTo(o.value().getIndex());
+    public int compareTo(final Card o) {
+        return this.value().compareTo(o.value());
     }
 
     @Override
@@ -16,7 +17,7 @@ public record Card(Color color, Value value) implements Comparable<Card> {
         }
 
         final Card otherCard = (Card) other;
-        return this.isSameColor(otherCard) && this.isSameValue(otherCard);
+        return this.isSameValue(otherCard) && this.isSameColor(otherCard);
     }
 
     @Override

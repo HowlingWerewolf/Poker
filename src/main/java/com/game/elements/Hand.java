@@ -76,7 +76,7 @@ public class Hand implements Comparable<Hand> {
         for (int i = 0; i < 5; i++) {
             final Card card = this.strongestCombination.get(i);
             final Card otherCard = otherHand.getStrongestCombination().get(i);
-            if (!card.isSameColor(otherCard) || !card.isSameValue(otherCard)) {
+            if (card.compareTo(otherCard) == 0) {
                 return false;
             }
         }

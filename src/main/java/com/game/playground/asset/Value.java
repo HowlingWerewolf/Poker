@@ -1,11 +1,6 @@
 package com.game.playground.asset;
 
-import lombok.Getter;
-
-import java.util.Arrays;
-
-@Getter
-public enum Value {
+public enum Value implements Comparable<Value> {
     TWO(2),
     THREE(3),
     FOUR(4),
@@ -27,8 +22,4 @@ public enum Value {
         this.index = i;
     }
 
-    public static Value indexToValue(final int i) {
-        return Arrays.stream(values())
-                .filter(value -> value.getIndex().equals(i)).findFirst().orElse(null);
-    }
 }

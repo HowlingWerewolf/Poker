@@ -59,6 +59,7 @@ public class Deck {
             try {
                 return card.clone();
             } catch (final CloneNotSupportedException e) {
+                // TODO better throw dedicated exceptions
                 throw new RuntimeException(e);
             }
         }).toList());

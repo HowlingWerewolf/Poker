@@ -22,14 +22,12 @@ import java.util.stream.Stream;
 public class OddsCalculator {
 
     /**
-     * Evaluates all outs and decides for each which has the strongest hand.
+     * Evaluates all outs for each player and decides for each out which played had the strongest hand.
      *
      * @param players players currently playing at the table
      * @param table   the playground
      */
     public void setWinRatio(final List<Player> players, final Table table) throws IllegalAccessException {
-        calculateOuts(table, players);
-
         final Map<Player, Integer> wins = calculateWinsForPlayers(players, table);
 
         // sum up all cases where the player or players won
@@ -40,7 +38,8 @@ public class OddsCalculator {
         players.forEach(player -> player.setWinRatio((double) wins.get(player) / (double) sum.get()));
     }
 
-    private Map<Player, Integer> calculateWinsForPlayers(final List<Player> players, final Table table) {
+    private Map<Player, Integer> calculateWinsForPlayers(final List<Player> players, final Table table) throws IllegalAccessException {
+        calculateOuts(table, players);
         final Map<Player, Integer> wins = HashMap.newHashMap(players.size());
         players.forEach(player -> wins.put(player, 0));
 
@@ -103,6 +102,7 @@ public class OddsCalculator {
         table.getOuts().addAll(allOuts);
     }
 
+    // FIXME: the calculation is not yet correct! see "mini deck" part below for more explanation
     /**
      * Calculates odds blindly for one player.
      *
@@ -153,14 +153,20 @@ public class OddsCalculator {
                     }
 
                     // register partial wins to overall table
-                    calculateWinsForPlayers(clonedTable.getPlayers(), clonedTable)
-                            .forEach((virtualPlayer, partialWinCount) ->
-                                    wins.put(virtualPlayer, partialWinCount + wins.get(virtualPlayer)));
+                    try {
+                        calculateWinsForPlayers(clonedTable.getPlayers(), clonedTable)
+                                .forEach((virtualPlayer, partialWinCount) ->
+                                        wins.put(virtualPlayer, partialWinCount + wins.get(virtualPlayer)));
+                    } catch (final IllegalAccessException e) {
+                        // TODO better throw dedicated exceptions
+                        throw new RuntimeException(e);
+                    }
 
                     counter.getAndSet(counter.get() + 1);
-                    if (counter.get() % 10000000 == 0) {
-                        log.info("Reached " + counter.get());
-                    }
+                    // TODO for debugging, remove later
+//                    if (counter.get() % 1000000 == 0) {
+//                        log.info("Reached " + counter.get());
+//                    }
                 });
 
         // sum up all cases where the player or players won
@@ -169,12 +175,11 @@ public class OddsCalculator {
 
         // copy the win ratio to the real table
         wins.forEach((virtualPlayer, winCount) -> {
-            final Player realPlayer = table.getPlayers().stream()
-                    .filter(p -> p.getUniqueName().equals(virtualPlayer.getUniqueName()))
-                    .findFirst()
-                    .orElseThrow(IllegalArgumentException::new);
-            realPlayer.setWinRatio((double) winCount / (double) sum.get());
-            log.info("Player: " + realPlayer.getUniqueName() + " - win ratio: " + realPlayer.getWinRatio());
+            if (virtualPlayer.getUniqueName().equals(player.getUniqueName())) {
+                player.setBlindWinRatio((double) winCount / (double) sum.get());
+                log.info("Player: " + player.getUniqueName() + " - win ratio: " + player.getBlindWinRatio());
+                log.info("Checked " + counter.get() + " combinations");
+            }
         });
     }
 
