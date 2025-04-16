@@ -73,7 +73,7 @@ public class OddsCalculator {
     private Hand evaluateHand(final List<Card> possibleOutcome, final Table table, final Player player) {
         final List<Card> cardCombination = Stream.of(player.getCards(), table.getFlippedCards(), possibleOutcome)
                 .flatMap(Collection::stream).toList();
-        return new HandEvaluator(cardCombination).evaluate();
+        return new Hand(cardCombination);
     }
 
     private Hand getStrongestHand(final Player player, final Hand hand,

@@ -70,6 +70,18 @@ public class HandEvaluator {
             return getStraightFlushHand(flushHands, straightFlushHands);
         }
 
+        final Optional<Hand> pokerHand = getPokerHand();
+        if (pokerHand.isPresent()) {
+            return pokerHand.get();
+        }
+
+        final Optional<Hand> drillHand = getDrillHand();
+        final Optional<Hand> pairHand = getPairHand();
+        if (drillHand.isPresent() && pairHand.isPresent()) {
+            // merge drill and pair
+            return getFullHouseHand();
+        }
+
         if (CollectionUtils.isNotEmpty(flushHands)) {
             // ordered by value, so the first is always the strongest
             return flushHands.getFirst();
@@ -79,30 +91,17 @@ public class HandEvaluator {
             return getHighestStraight(straightHands);
         }
 
-        final Hand pokerHand = getPokerHand();
-        if (pokerHand != null) {
-            return pokerHand;
+        if (drillHand.isPresent()) {
+            return drillHand.get();
         }
 
-        final Hand drillHand = getDrillHand();
-        final Hand pairHand = getPairHand();
-        if (drillHand != null && pairHand != null) {
-            // merge drill and pair
-            return getFullHouseHand();
+        final Optional<Hand> twoPairHand = getTwoPairHand();
+        if (twoPairHand.isPresent()) {
+            return twoPairHand.get();
         }
 
-        if (drillHand != null) {
-            return drillHand;
-        }
-
-
-        final Hand twoPairHand = getTwoPairHand();
-        if (twoPairHand != null) {
-            return twoPairHand;
-        }
-
-        if (pairHand != null) {
-            return pairHand;
+        if (pairHand.isPresent()) {
+            return pairHand.get();
         }
 
         return new Hand(cardsToEvaluate, HandComparatorUtil.sortCardsDescending(cardsToEvaluate).subList(0, 5), Ranking.HIGH_CARD);
@@ -127,7 +126,6 @@ public class HandEvaluator {
         Hand highestStraightHand = straightHands.getFirst();
         for (final Hand hand : straightHands) {
             final List<Card> straightCards = hand.getStrongestCombination();
-            HandComparatorUtil.sortCardsDescending(straightCards);
             if (highestStraightHand == null ||
                     straightCards.getFirst().value().getIndex() > maxValue.getIndex()) {
                 highestStraightHand = hand;
@@ -164,11 +162,6 @@ public class HandEvaluator {
     }
 
     private List<Hand> getStraightHands() {
-        final int distinctValueCount = getDistinctValues().size();
-        if (distinctValueCount < 5) {
-            return List.of();
-        }
-
         // partition valuematrix by neighbors - any with size 5 indicates we have a straight
         final boolean hasStraight = getPartitions().stream().anyMatch(partition -> partition.size() >= 5);
 
@@ -235,15 +228,15 @@ public class HandEvaluator {
                 .forEach(theLowestStraight::remove);
 
         if (theLowestStraight.isEmpty()) {
-            final List<Card> cards = cardsToEvaluate.stream()
-                    .filter(card -> SetUtils.hashSet(Value.ACE, Value.TWO, Value.THREE, Value.FOUR, Value.FIVE).contains(card.value()))
-                    .toList();
-            final List<Card> sortedCards = HandComparatorUtil.sortCardsDescending(cards);
+            final Set<Value> lowestStraight = Set.of(Value.ACE, Value.TWO, Value.THREE, Value.FOUR, Value.FIVE);
+            final List<Card> cards = HandComparatorUtil.sortCardsDescending(cardsToEvaluate.stream()
+                    .filter(card -> lowestStraight.contains(card.value()))
+                    .collect(Collectors.toList()));
 
-            keepOnlyDominantColor(sortedCards);
+            keepOnlyDominantColor(cards);
 
-            return Optional.of(new Hand(cardsToEvaluate, List.of(sortedCards.get(4), sortedCards.get(0), sortedCards.get(1),
-                    sortedCards.get(2), sortedCards.get(3)), Ranking.STRAIGHT));
+            return Optional.of(new Hand(cardsToEvaluate, List.of(cards.get(4), cards.get(0), cards.get(1),
+                    cards.get(2), cards.get(3)), Ranking.STRAIGHT));
         }
         return Optional.empty();
     }
@@ -287,13 +280,6 @@ public class HandEvaluator {
         }
     }
 
-    private List<Value> getDistinctValues() {
-        return valueMatrix.entrySet().stream()
-                .filter(e -> e.getValue() > 0)
-                .map(Map.Entry::getKey)
-                .toList();
-    }
-
     private Hand getStraightHands(final List<Card> cards) {
         final Set<Value> values = cards.stream().map(Card::value).collect(Collectors.toUnmodifiableSet());
         if (values.size() != 5) {
@@ -322,19 +308,19 @@ public class HandEvaluator {
         return card2.value().getIndex() - card1.value().getIndex() == 1;
     }
 
-    protected Hand getPokerHand() {
+    protected Optional<Hand> getPokerHand() {
         return getValueMatches(4, Ranking.POKER);
     }
 
-    protected Hand getDrillHand() {
+    protected Optional<Hand> getDrillHand() {
         return getValueMatches(3, Ranking.DRILL);
     }
 
-    private Hand getPairHand() {
+    private Optional<Hand> getPairHand() {
         return getValueMatches(2, Ranking.ONE_PAIR);
     }
 
-    public Hand getValueMatches(final int matching, final Ranking ranking) {
+    public Optional<Hand> getValueMatches(final int matching, final Ranking ranking) {
         final Optional<Map.Entry<Value, Integer>> matchedEntry = valueMatrix.entrySet()
                 .stream()
                 .filter(value -> value.getValue() == matching)
@@ -347,9 +333,10 @@ public class HandEvaluator {
             final List<Card> kickers = HandComparatorUtil.sortCardsDescending(ListUtils.subtract(cardsToEvaluate, matchedCards))
                     .subList(0, MAX_HAND_SIZE - matching);
 
-            return new Hand(cardsToEvaluate, HandComparatorUtil.sortCardsDescending(ListUtils.union(matchedCards, kickers)), ranking);
+            return Optional.of(new Hand(cardsToEvaluate,
+                    HandComparatorUtil.sortCardsDescending(ListUtils.union(matchedCards, kickers)), ranking));
         }
-        return null;
+        return Optional.empty();
     }
 
     private Hand getFullHouseHand() {
@@ -377,7 +364,7 @@ public class HandEvaluator {
         return null;
     }
 
-    protected Hand getTwoPairHand() {
+    protected Optional<Hand> getTwoPairHand() {
         final List<Map.Entry<Value, Integer>> twoPairs = valueMatrix.entrySet()
                 .stream()
                 .filter(e -> e.getValue() == 2)
@@ -394,11 +381,11 @@ public class HandEvaluator {
                     ListUtils.subtract(ListUtils.subtract(cardsToEvaluate, firstPair), secondPair).stream()
                             .max(Comparator.comparing(card -> card.value().getIndex()));
             assert (kicker.isPresent());
-            return new Hand(cardsToEvaluate,
+            return Optional.of(new Hand(cardsToEvaluate,
                     List.of(firstPair.get(0), firstPair.get(1), secondPair.get(0), secondPair.get(1), kicker.get()),
-                    Ranking.TWO_PAIRS);
+                    Ranking.TWO_PAIRS));
         }
-        return null;
+        return Optional.empty();
     }
 
 }

@@ -18,7 +18,8 @@ import static com.game.calculators.Constants.POKER_SIZE;
 
 public class HandComparatorUtil {
 
-    private HandComparatorUtil() {}
+    private HandComparatorUtil() {
+    }
 
     public static int compareHighCardHands(final Hand hand, final Hand otherHand) {
         final List<Card> sortedCards = sortCardsDescending(hand);
@@ -44,7 +45,6 @@ public class HandComparatorUtil {
     private static List<Card> sortCardsDescending(final Hand hand) {
         return sortCardsDescending(hand.getCards());
     }
-
 
     protected static List<Card> sortCardsDescending(final List<Card> cards) {
         return cards.stream()
@@ -109,11 +109,11 @@ public class HandComparatorUtil {
         }
 
         // compare kickers
-        final List<Card> kickers = handEvaluator.getTwoPairHand().getCards().stream()
+        final List<Card> kickers = handEvaluator.getTwoPairHand().get().getCards().stream()
                 .filter(card -> !card.value().equals(twoPairs.getFirst().getKey()) && !card.value().equals(twoPairs.get(1).getKey()))
                 .sorted((c1, c2) -> c2.value().getIndex().compareTo(c1.value().getIndex()))
                 .toList();
-        final List<Card> otherKickers = otherHandEvaluator.getTwoPairHand().getCards().stream()
+        final List<Card> otherKickers = otherHandEvaluator.getTwoPairHand().get().getCards().stream()
                 .filter(card -> !card.value().equals(twoPairs.getFirst().getKey()) && !card.value().equals(twoPairs.get(1).getKey()))
                 .sorted((c1, c2) -> c2.value().getIndex().compareTo(c1.value().getIndex()))
                 .toList();
@@ -154,11 +154,11 @@ public class HandComparatorUtil {
         }
 
         // compare kickers
-        final List<Card> kickers = handEvaluator.getDrillHand().getCards().stream()
+        final List<Card> kickers = handEvaluator.getDrillHand().get().getCards().stream()
                 .filter(card -> !card.value().equals(drill.getFirst().getKey()))
                 .sorted((c1, c2) -> c2.value().getIndex().compareTo(c1.value().getIndex()))
                 .toList();
-        final List<Card> otherKickers = otherHandEvaluator.getDrillHand().getCards().stream()
+        final List<Card> otherKickers = otherHandEvaluator.getDrillHand().get().getCards().stream()
                 .filter(card -> !card.value().equals(drill.getFirst().getKey()))
                 .sorted((c1, c2) -> c2.value().getIndex().compareTo(c1.value().getIndex()))
                 .toList();
@@ -213,11 +213,11 @@ public class HandComparatorUtil {
         }
 
         // compare kickers
-        final List<Card> kickers = handEvaluator.getPokerHand().getCards().stream()
+        final List<Card> kickers = handEvaluator.getPokerHand().get().getCards().stream()
                 .filter(card -> !card.value().equals(poker.getFirst().getKey()))
                 .sorted((c1, c2) -> c2.value().getIndex().compareTo(c1.value().getIndex()))
                 .toList();
-        final List<Card> otherKickers = otherHandEvaluator.getPokerHand().getCards().stream()
+        final List<Card> otherKickers = otherHandEvaluator.getPokerHand().get().getCards().stream()
                 .filter(card -> !card.value().equals(poker.getFirst().getKey()))
                 .sorted((c1, c2) -> c2.value().getIndex().compareTo(c1.value().getIndex()))
                 .toList();

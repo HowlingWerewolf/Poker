@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * All tests are written to get the strongest 5 card combination out of 7 cards.
  */
@@ -309,11 +311,33 @@ class HandEvaluatorTest {
         assertHand(evaluated, Ranking.ONE_PAIR);
     }
 
+    @Test
+    void testHighCard() {
+        // given
+        final List<Card> cards = List.of(
+                new Card(Color.DIAMOND, Value.TWO),
+                new Card(Color.CLUB, Value.FOUR),
+                new Card(Color.CLUB, Value.ACE),
+                new Card(Color.SPADE, Value.EIGHT),
+                new Card(Color.CLUB, Value.JACK),
+                new Card(Color.CLUB, Value.QUEEN),
+                new Card(Color.HEART, Value.KING)
+        );
+        final HandEvaluator evaluator = new HandEvaluator(cards);
+
+        // when
+        final Hand evaluated = evaluator.evaluate();
+
+        // then
+        assertHand(evaluated, Ranking.HIGH_CARD);
+        assertEquals(Value.ACE, evaluated.getStrongestCombination().getFirst().value());
+    }
+
     private void assertHand(final Hand evaluated, final Ranking ranking) {
         Assertions.assertNotNull(evaluated);
         Assertions.assertNotNull(evaluated.getCards());
-        Assertions.assertEquals(5, evaluated.getStrongestCombination().size());
-        Assertions.assertEquals(ranking, evaluated.getRanking());
+        assertEquals(5, evaluated.getStrongestCombination().size());
+        assertEquals(ranking, evaluated.getRanking());
     }
 
 }

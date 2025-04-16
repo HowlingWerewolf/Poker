@@ -5,7 +5,6 @@ import com.game.calculators.HandEvaluator;
 import com.game.playground.asset.Card;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.java.Log;
 
@@ -15,7 +14,6 @@ import java.util.Objects;
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
 @Log
 public class Hand implements Comparable<Hand> {
 
@@ -23,6 +21,11 @@ public class Hand implements Comparable<Hand> {
     private List<Card> strongestCombination;
     private Ranking ranking;
 
+    /**
+     * After the last card placed on the table (river at texas holdem), we can evaluate cards.
+     *
+     * @param cards the cards of the player and the cards placed on the table
+     */
     public Hand(final List<Card> cards) {
         // we just got cards unevaluated - let's perform some evaluation!
         this.cards = cards;
