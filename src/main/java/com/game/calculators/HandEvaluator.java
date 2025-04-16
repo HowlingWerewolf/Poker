@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -57,20 +58,25 @@ public class HandEvaluator {
      * @return the strongest hand
      */
     public Hand evaluate() {
-        final Hand flushHand = getFlushHand();
-        final Hand straightHand = getStraightHand();
+        final List<Hand> flushHands = getFlushHands();
+        final List<Hand> straightHands = getStraightHands();
 
         // royal flush
-        if (flushHand != null && flushHand.equals(straightHand)) {
-            return new Hand(cardsToEvaluate, flushHand.getStrongestCombination(), Ranking.STRAIGHT_FLUSH);
+        final List<List<Card>> straightFlushHands = CollectionUtils.intersection(
+                        new HashSet<>(flushHands.stream().map(Hand::getStrongestCombination).toList()),
+                        new HashSet<>(straightHands.stream().map(Hand::getStrongestCombination).toList()))
+                .stream().toList();
+        if (CollectionUtils.isNotEmpty(straightFlushHands)) {
+            return getStraightFlushHand(flushHands, straightFlushHands);
         }
 
-        if (flushHand != null) {
-            return flushHand;
+        if (CollectionUtils.isNotEmpty(flushHands)) {
+            // ordered by value, so the first is always the strongest
+            return flushHands.getFirst();
         }
 
-        if (straightHand != null) {
-            return straightHand;
+        if (CollectionUtils.isNotEmpty(straightHands)) {
+            return getHighestStraight(straightHands);
         }
 
         final Hand pokerHand = getPokerHand();
@@ -102,7 +108,36 @@ public class HandEvaluator {
         return new Hand(cardsToEvaluate, HandComparatorUtil.sortCardsDescending(cardsToEvaluate).subList(0, 5), Ranking.HIGH_CARD);
     }
 
-    private Hand getFlushHand() {
+    private Hand getStraightFlushHand(final List<Hand> flushHands, final List<List<Card>> straightFlushHands) {
+        final List<Hand> hands = flushHands.stream()
+                .filter(hand -> straightFlushHands.contains(hand.getStrongestCombination()))
+                .toList();
+        final Hand highestStraightFlush = getHighestStraight(hands);
+        highestStraightFlush.setRanking(Ranking.STRAIGHT_FLUSH);
+        return highestStraightFlush;
+    }
+
+    private Hand getHighestStraight(final List<Hand> straightHands) {
+        if (CollectionUtils.isEmpty(straightHands)) {
+            throw new IllegalArgumentException();
+        }
+
+        // initially the lowest possible straight, can we find better?
+        Value maxValue = Value.FIVE;
+        Hand highestStraightHand = straightHands.getFirst();
+        for (final Hand hand : straightHands) {
+            final List<Card> straightCards = hand.getStrongestCombination();
+            HandComparatorUtil.sortCardsDescending(straightCards);
+            if (highestStraightHand == null ||
+                    straightCards.getFirst().value().getIndex() > maxValue.getIndex()) {
+                highestStraightHand = hand;
+                maxValue = straightCards.getFirst().value();
+            }
+        }
+        return highestStraightHand;
+    }
+
+    private List<Hand> getFlushHands() {
         final Optional<Map.Entry<Color, Integer>> flushEntry = colorMatrix.entrySet()
                 .stream()
                 .filter(color -> color.getValue() >= 5)
@@ -112,17 +147,26 @@ public class HandEvaluator {
             final List<Card> flushCards = cardsToEvaluate.stream()
                     .filter(card -> card.color().equals(flushEntry.get().getKey()))
                     .sorted(Comparator.comparing(card -> card.value().getIndex()))
-                    .toList()
-                    .subList(0, 5);
-            return new Hand(cardsToEvaluate, flushCards, Ranking.FLUSH);
+                    .sorted(Comparator.reverseOrder())
+                    .toList();
+
+            if (flushCards.size() == 5) {
+                return List.of(new Hand(cardsToEvaluate, flushCards, Ranking.FLUSH));
+            }
+
+            return Combinatorics.combinations(flushCards.toArray(), 5)
+                    .stream()
+                    .map(o -> Arrays.stream(o).map(c -> (Card) c).toList())
+                    .map(cards -> new Hand(cardsToEvaluate, cards, Ranking.FLUSH))
+                    .toList();
         }
-        return null;
+        return List.of();
     }
 
-    private Hand getStraightHand() {
+    private List<Hand> getStraightHands() {
         final int distinctValueCount = getDistinctValues().size();
         if (distinctValueCount < 5) {
-            return null;
+            return List.of();
         }
 
         // partition valuematrix by neighbors - any with size 5 indicates we have a straight
@@ -136,15 +180,18 @@ public class HandEvaluator {
                             .map(o -> Arrays.stream(o).map(c -> (Card) c).toList())
                             .toList();
 
+            final List<Hand> hands = new ArrayList<>();
             for (final List<Card> fiveCards : combinations) {
-                final Hand hand = getStraightHand(fiveCards);
+                final Hand hand = getStraightHands(fiveCards);
                 if (hand != null) {
-                    return hand;
+                    hands.add(hand);
                 }
             }
+            return hands;
         }
 
-        return getLowestStraightOrEmpty();
+        final Optional<Hand> lowestStraightOrEmpty = getLowestStraightOrEmpty();
+        return lowestStraightOrEmpty.map(List::of).orElseGet(List::of);
     }
 
     private List<List<Value>> getPartitions() {
@@ -177,7 +224,7 @@ public class HandEvaluator {
         return partitionedValues;
     }
 
-    private Hand getLowestStraightOrEmpty() {
+    private Optional<Hand> getLowestStraightOrEmpty() {
         // check if the ace considered as one then the straight
         // by removing elements from a complete lowest straight
         final Set<Value> theLowestStraight =
@@ -195,10 +242,10 @@ public class HandEvaluator {
 
             keepOnlyDominantColor(sortedCards);
 
-            return new Hand(cardsToEvaluate, List.of(sortedCards.get(4), sortedCards.get(0), sortedCards.get(1),
-                    sortedCards.get(2), sortedCards.get(3)), Ranking.STRAIGHT);
+            return Optional.of(new Hand(cardsToEvaluate, List.of(sortedCards.get(4), sortedCards.get(0), sortedCards.get(1),
+                    sortedCards.get(2), sortedCards.get(3)), Ranking.STRAIGHT));
         }
-        return null;
+        return Optional.empty();
     }
 
     private void keepOnlyDominantColor(final List<Card> sortedCards) {
@@ -217,7 +264,7 @@ public class HandEvaluator {
                     .filter(e -> e.getValue().equals(max.get()))
                     .map(Map.Entry::getKey)
                     .findFirst().orElseThrow(IllegalArgumentException::new);
-            for (int i = sortedCards.size(); i > 5 ; i--) {
+            for (int i = sortedCards.size(); i > 5; i--) {
                 final Optional<Card> removable = sortedCards.stream()
                         .filter(card -> valueMatrix.get(card.value()) > 1)
                         .filter(card -> card.color().equals(dominantColor)).findFirst();
@@ -247,7 +294,7 @@ public class HandEvaluator {
                 .toList();
     }
 
-    private Hand getStraightHand(final List<Card> cards) {
+    private Hand getStraightHands(final List<Card> cards) {
         final Set<Value> values = cards.stream().map(Card::value).collect(Collectors.toUnmodifiableSet());
         if (values.size() != 5) {
             return null;

@@ -48,10 +48,10 @@ public class TexasGameSimulation {
             log.info("Dealing...");
         }
 
-        final Player me = new Player();
+        final Player me = new Player("me");
         dealToPlayer(me);
 
-        final Player miniMe = new Player();
+        final Player miniMe = new Player("miniMe");
         dealToPlayer(miniMe);
 
         if (openCardsModeEnabled) {

@@ -3,15 +3,19 @@ package com.game.playground;
 import com.game.playground.asset.Card;
 import com.game.playground.asset.Color;
 import com.game.playground.asset.Value;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.java.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Getter
+@Setter
 @Log
 public class Deck {
-    final List<Card> cards = new ArrayList<>(52);
+    List<Card> cards = new ArrayList<>(52);
     final boolean announcerEnabled;
 
     public Deck() {
@@ -45,6 +49,20 @@ public class Deck {
 
     public List<Card> getFlippedDownDeck() {
         return cards;
+    }
+
+    @Override
+    public Deck clone() throws CloneNotSupportedException {
+        final Deck copy = (Deck) super.clone();
+        copy.cards.clear();
+        copy.cards.addAll(cards.stream().map(card -> {
+            try {
+                return card.clone();
+            } catch (final CloneNotSupportedException e) {
+                throw new RuntimeException(e);
+            }
+        }).toList());
+        return copy;
     }
 
 }

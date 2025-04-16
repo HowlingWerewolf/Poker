@@ -4,15 +4,16 @@ import com.game.actor.Player;
 import com.game.playground.asset.Card;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.java.Log;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 
 @Getter
 @Setter
-public class Table {
+@Log
+public class Table implements Cloneable {
     final List<Card> flippedCards = new ArrayList<>(5);
     final List<Player> players = new ArrayList<>(8);
     final List<List<Card>> outs = new ArrayList<>(1000);
@@ -26,4 +27,14 @@ public class Table {
     public Table(boolean announcerEnabled) {
         deck = new Deck(announcerEnabled);
     }
+
+    @Override
+    public Table clone() {
+        try {
+            return (Table) super.clone();
+        } catch (final CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

@@ -32,4 +32,9 @@ public record Card(Color color, Value value) implements Comparable<Card> {
         return this.value().equals(otherCard.value());
     }
 
+    @Override
+    public Card clone() throws CloneNotSupportedException {
+        return (Card) super.clone();
+    }
+
 }

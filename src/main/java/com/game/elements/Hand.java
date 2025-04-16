@@ -66,13 +66,13 @@ public class Hand implements Comparable<Hand> {
         }
 
         final Hand otherHand = (Hand) obj;
-        if (this.cards.size() != otherHand.cards.size()) {
+        if (this.strongestCombination.size() != otherHand.strongestCombination.size()) {
             return false;
         }
 
         for (int i = 0; i < 5; i++) {
-            final Card card = this.cards.get(i);
-            final Card otherCard = otherHand.getCards().get(i);
+            final Card card = this.strongestCombination.get(i);
+            final Card otherCard = otherHand.getStrongestCombination().get(i);
             if (!card.isSameColor(otherCard) || !card.isSameValue(otherCard)) {
                 return false;
             }

@@ -24,12 +24,12 @@ class OddsCalculatorTest implements CardDrawing {
         final Deck deck = table.getDeck();
 
         // find two cards from the deck
-        final Player playerOne = new Player();
+        final Player playerOne = new Player("playerOne");
         giveCardToPlayerFromDeck(Color.CLUB, Value.ACE, playerOne, deck);
         giveCardToPlayerFromDeck(Color.CLUB, Value.KING, playerOne, deck);
 
         // find two cards from the deck
-        final Player playerTwo = new Player();
+        final Player playerTwo = new Player("playerTwo");
         giveCardToPlayerFromDeck(Color.HEART, Value.TWO, playerTwo, deck);
         giveCardToPlayerFromDeck(Color.SPADE, Value.SEVEN, playerTwo, deck);
 
@@ -65,17 +65,17 @@ class OddsCalculatorTest implements CardDrawing {
         final Deck deck = table.getDeck();
 
         // find two cards from the deck
-        final Player playerOne = new Player();
+        final Player playerOne = new Player("playerOne");
         giveCardToPlayerFromDeck(Color.CLUB, Value.ACE, playerOne, deck);
         giveCardToPlayerFromDeck(Color.CLUB, Value.KING, playerOne, deck);
 
         // find two cards from the deck
-        final Player playerTwo = new Player();
+        final Player playerTwo = new Player("playerTwo");
         giveCardToPlayerFromDeck(Color.HEART, Value.TWO, playerTwo, deck);
         giveCardToPlayerFromDeck(Color.SPADE, Value.SEVEN, playerTwo, deck);
 
         // find two cards from the deck
-        final Player playerThree = new Player();
+        final Player playerThree = new Player("playerThree");
         giveCardToPlayerFromDeck(Color.HEART, Value.FOUR, playerThree, deck);
         giveCardToPlayerFromDeck(Color.SPADE, Value.FIVE, playerThree, deck);
 
@@ -101,17 +101,17 @@ class OddsCalculatorTest implements CardDrawing {
         final Deck deck = table.getDeck();
 
         // find two cards from the deck
-        final Player playerOne = new Player();
+        final Player playerOne = new Player("playerOne");
         giveCardToPlayerFromDeck(Color.CLUB, Value.ACE, playerOne, deck);
         giveCardToPlayerFromDeck(Color.CLUB, Value.KING, playerOne, deck);
 
         // find two cards from the deck
-        final Player playerTwo = new Player();
+        final Player playerTwo = new Player("playerTwo");
         giveCardToPlayerFromDeck(Color.HEART, Value.TWO, playerTwo, deck);
         giveCardToPlayerFromDeck(Color.SPADE, Value.SEVEN, playerTwo, deck);
 
         // find two cards from the deck
-        final Player playerThree = new Player();
+        final Player playerThree = new Player("playerThree");
         giveCardToPlayerFromDeck(Color.HEART, Value.FOUR, playerThree, deck);
         giveCardToPlayerFromDeck(Color.SPADE, Value.FIVE, playerThree, deck);
 
@@ -131,12 +131,12 @@ class OddsCalculatorTest implements CardDrawing {
         final Deck deck = table.getDeck();
 
         // find two cards from the deck
-        final Player playerOne = new Player();
+        final Player playerOne = new Player("playerOne");
         giveCardToPlayerFromDeck(Color.CLUB, Value.ACE, playerOne, deck);
         giveCardToPlayerFromDeck(Color.CLUB, Value.KING, playerOne, deck);
 
         // find two cards from the deck
-        final Player playerTwo = new Player();
+        final Player playerTwo = new Player("playerTwo");
         giveCardToPlayerFromDeck(Color.HEART, Value.TWO, playerTwo, deck);
         giveCardToPlayerFromDeck(Color.SPADE, Value.SEVEN, playerTwo, deck);
 
@@ -148,5 +148,29 @@ class OddsCalculatorTest implements CardDrawing {
         // then
         assertPlayersWinRatioSumIsOne(players);
     }
+
+    // TODO
+//    @Test
+//    void getOddsForOnePlayerWithTwoPlayers() {
+//        // given
+//        final Table table = new Table(announcerEnabled);
+//        final Deck deck = table.getDeck();
+//
+//        // find two cards from the deck
+//        final Player playerOne = new Player("playerOne");
+//        giveCardToPlayerFromDeck(Color.CLUB, Value.ACE, playerOne, deck);
+//        giveCardToPlayerFromDeck(Color.CLUB, Value.KING, playerOne, deck);
+//
+//        final Player playerTwo = new Player("playerTwo");
+//        final List<Player> players = List.of(playerOne, playerTwo);
+//
+//        // when
+//        final OddsCalculator oddsCalculator = new OddsCalculator();
+//        table.getPlayers().addAll(players);
+//        oddsCalculator.getOddsForOnePlayer(playerOne, table, 5);
+//
+//        // then
+//        assertPlayersWinRatioSumIsOne(players);
+//    }
 
 }

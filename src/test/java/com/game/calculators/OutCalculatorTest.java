@@ -21,7 +21,7 @@ class OutCalculatorTest implements CardDrawing {
         // given
         final Table table = new Table(announcerEnabled);
         final Deck deck = table.getDeck();
-        final Player player = new Player();
+        final Player player = new Player("playerOne");
 
         // find two cards from the deck
         player.getCards().add(findCardFromDeck(Color.CLUB, Value.ACE, deck));
